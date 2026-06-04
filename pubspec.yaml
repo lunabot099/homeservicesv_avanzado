@@ -1,0 +1,61 @@
+name: homeservicesv
+description: "HomeServiceSV - Plataforma de servicios para el hogar"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Íconos Cupertino para iOS
+  cupertino_icons: ^1.0.8
+
+  # Supabase — base de datos y autenticación
+  supabase_flutter: ^2.8.4
+
+  # Estado y ViewModels
+  provider: ^6.1.2
+
+  # Navegación por rutas nombradas
+  go_router: ^14.3.0
+
+  # Tipografía Google Fonts (Inter)
+  google_fonts: ^6.2.1
+
+  # Variables de entorno (.env)
+  flutter_dotenv: ^5.2.1
+
+  # Persistencia local (sesión)
+  shared_preferences: ^2.3.3
+
+  # Selector de imágenes (fotos de perfil y DUI)
+  image_picker: ^1.1.2
+
+  # Selector de archivos genérico (PDFs — antecedentes penales)
+  file_picker: ^8.1.2
+
+  # Mapa OpenStreetMap (zona de cobertura del trabajador — sin API key)
+  flutter_map: ^8.1.1
+  latlong2: ^0.9.1
+
+  # Geolocalización del dispositivo (permiso de ubicación actual)
+  geolocator: ^14.0.0
+
+  # Abrir URLs externas (WhatsApp, email, etc.)
+  url_launcher: ^6.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
