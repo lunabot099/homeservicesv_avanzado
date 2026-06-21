@@ -16,12 +16,9 @@ class SolicitudesService {
   // ── Operaciones del cliente ──────────────────────────────────
 
   /// Crea una nueva solicitud de servicio.
-  Future<SolicitudServicioModel> createSolicitud(SolicitudServicioModel s) async {
-    final data = await _client
-        .from(_table)
-        .insert(s.toMap())
-        .select()
-        .single();
+  Future<SolicitudServicioModel> createSolicitud(
+      SolicitudServicioModel s) async {
+    final data = await _client.from(_table).insert(s.toMap()).select().single();
     return SolicitudServicioModel.fromMap(data);
   }
 
@@ -40,11 +37,7 @@ class SolicitudesService {
 
   /// Obtiene una solicitud por su ID.
   Future<SolicitudServicioModel?> getSolicitudById(String id) async {
-    final data = await _client
-        .from(_table)
-        .select()
-        .eq('id', id)
-        .maybeSingle();
+    final data = await _client.from(_table).select().eq('id', id).maybeSingle();
     if (data == null) return null;
     return SolicitudServicioModel.fromMap(data);
   }
@@ -57,13 +50,10 @@ class SolicitudesService {
     String? departamento,
     String? categoriaId,
   }) async {
-    var query = _client
-        .from(_table)
-        .select()
-        .inFilter('estado', [
-          EstadoSolicitud.en_busqueda.name,
-          EstadoSolicitud.postulaciones_recibidas.name,
-        ]);
+    var query = _client.from(_table).select().inFilter('estado', [
+      EstadoSolicitud.en_busqueda.name,
+      EstadoSolicitud.postulaciones_recibidas.name,
+    ]);
 
     if (departamento != null) {
       query = query.eq('departamento', departamento);
@@ -85,7 +75,8 @@ class SolicitudesService {
         .from(_table)
         .select()
         .eq('trabajador_seleccionado_id', trabajadorId)
-        .not('estado', 'in', '(${EstadoSolicitud.cancelada.name},${EstadoSolicitud.completada.name},${EstadoSolicitud.expirada.name})')
+        .not('estado', 'in',
+            '(${EstadoSolicitud.cancelada.name},${EstadoSolicitud.completada.name},${EstadoSolicitud.expirada.name})')
         .order('fecha_creacion', ascending: false);
     return (data as List)
         .map((e) => SolicitudServicioModel.fromMap(e as Map<String, dynamic>))
@@ -114,7 +105,9 @@ class SolicitudesService {
     String? trabajadorId,
   }) async {
     final updates = <String, dynamic>{'estado': estado.name};
-    if (trabajadorId != null) updates['trabajador_seleccionado_id'] = trabajadorId;
+    if (trabajadorId != null) {
+      updates['trabajador_seleccionado_id'] = trabajadorId;
+    }
 
     final data = await _client
         .from(_table)
@@ -125,12 +118,25 @@ class SolicitudesService {
     return SolicitudServicioModel.fromMap(data);
   }
 
+  /// Guarda las URLs publicas de imagenes adjuntas a la solicitud.
+  Future<SolicitudServicioModel> updateImagenesUrls({
+    required String id,
+    required List<String> imagenesUrls,
+  }) async {
+    final data = await _client
+        .from(_table)
+        .update({'imagenes_urls': imagenesUrls})
+        .eq('id', id)
+        .select()
+        .single();
+    return SolicitudServicioModel.fromMap(data);
+  }
+
   /// Cancela una solicitud.
   Future<void> cancelarSolicitud(String id) async {
     await _client
         .from(_table)
-        .update({'estado': EstadoSolicitud.cancelada.name})
-        .eq('id', id);
+        .update({'estado': EstadoSolicitud.cancelada.name}).eq('id', id);
   }
 
   // ── Realtime ──────────────────────────────────────────────────
@@ -151,10 +157,8 @@ class SolicitudesService {
   Stream<List<SolicitudServicioModel>> streamSolicitudesDisponibles({
     String? departamento,
   }) {
-    var stream = _client
-        .from(_table)
-        .stream(primaryKey: ['id'])
-        .eq('estado', EstadoSolicitud.en_busqueda.name);
+    var stream = _client.from(_table).stream(primaryKey: ['id']).eq(
+        'estado', EstadoSolicitud.en_busqueda.name);
 
     return stream.map((rows) => rows
         .map((e) => SolicitudServicioModel.fromMap(e))
@@ -167,7 +171,10 @@ class SolicitudesService {
   /// Marca como `expirada` todas las solicitudes en búsqueda creadas
   /// hace más de 1 hora (3600 segundos) que aún no tienen trabajador.
   Future<void> expirarSolicitudesAntiguas() async {
-    final limite = DateTime.now().toUtc().subtract(const Duration(hours: 1)).toIso8601String();
+    final limite = DateTime.now()
+        .toUtc()
+        .subtract(const Duration(hours: 1))
+        .toIso8601String();
     await _client
         .from(_table)
         .update({'estado': EstadoSolicitud.expirada.name})
@@ -181,7 +188,10 @@ class SolicitudesService {
 
   /// Elimina solicitudes con estado `expirada` creadas hace más de 90 minutos.
   Future<void> limpiarExpiradas() async {
-    final limite = DateTime.now().toUtc().subtract(const Duration(minutes: 90)).toIso8601String();
+    final limite = DateTime.now()
+        .toUtc()
+        .subtract(const Duration(minutes: 90))
+        .toIso8601String();
     await _client
         .from(_table)
         .delete()

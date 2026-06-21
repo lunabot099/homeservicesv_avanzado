@@ -107,6 +107,22 @@ class StorageService {
     );
   }
 
+  /// Sube una imagen adjunta a una solicitud usando bytes.
+  Future<String> uploadSolicitudImagenBytes({
+    required String solicitudId,
+    required int index,
+    required Uint8List bytes,
+    String contentType = 'image/jpeg',
+  }) async {
+    final ts = DateTime.now().millisecondsSinceEpoch;
+    return uploadBinaryData(
+      bucket: Env.bucketSolicitudesImagenes,
+      path: '$solicitudId/${ts}_$index.jpg',
+      bytes: bytes,
+      contentType: contentType,
+    );
+  }
+
   // ── Chat ──────────────────────────────────────────────────────
 
   /// Sube una imagen enviada en el chat.

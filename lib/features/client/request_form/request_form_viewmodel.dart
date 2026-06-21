@@ -101,7 +101,7 @@ class RequestFormViewModel extends ChangeNotifier {
       tipoPago: _tipoPago,
       horarioPreferido: _horario.isEmpty ? null : _horario,
       presupuestoEstimado: _presupuesto,
-      // Las imagenesFiles se subirán a storage en fase futura
+      imagenesPendientesBytes: List<Uint8List>.from(_imagenesBytes),
     );
   }
 

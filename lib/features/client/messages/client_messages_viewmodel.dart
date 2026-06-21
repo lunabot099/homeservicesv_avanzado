@@ -82,9 +82,8 @@ class ClientMessagesViewModel extends ChangeNotifier {
         String ultimoMensajeTexto = 'Chat activo';
         DateTime fechaMensaje = chat.creadoEn ?? DateTime.now();
         try {
-          final mensajes = await _chatsRepo.getMensajes(chat.id!, limit: 1);
-          if (mensajes.isNotEmpty) {
-            final ultimo = mensajes.last;
+          final ultimo = await _chatsRepo.getUltimoMensaje(chat.id!);
+          if (ultimo != null) {
             ultimoMensajeTexto = _textoMensaje(ultimo.tipo.name, ultimo.contenido);
             fechaMensaje = ultimo.creadoEn ?? fechaMensaje;
           }

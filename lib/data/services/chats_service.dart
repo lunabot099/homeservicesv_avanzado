@@ -52,6 +52,16 @@ class ChatsService {
     return data != null ? ChatModel.fromMap(data) : null;
   }
 
+  /// Obtiene un chat por su ID.
+  Future<ChatModel?> getById(String chatId) async {
+    final data = await _client
+        .from(_table)
+        .select()
+        .eq('id', chatId)
+        .maybeSingle();
+    return data != null ? ChatModel.fromMap(data) : null;
+  }
+
   /// Obtiene todos los chats de un usuario (cliente o trabajador).
   Future<List<ChatModel>> getMisChats(String userId) async {
     // OR en postGREST: buscar como cliente O como trabajador

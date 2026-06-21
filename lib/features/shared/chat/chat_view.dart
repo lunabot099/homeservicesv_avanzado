@@ -75,6 +75,7 @@ class _ChatViewState extends State<ChatView> {
   void dispose() {
     _msgCtrl.dispose();
     _scrollCtrl.dispose();
+    _vm.dispose();
     super.dispose();
   }
 

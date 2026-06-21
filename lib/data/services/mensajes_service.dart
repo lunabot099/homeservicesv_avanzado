@@ -46,6 +46,19 @@ class MensajesService {
         .toList();
   }
 
+  /// Obtiene el último mensaje de un chat.
+  Future<MensajeChatModel?> getUltimoMensaje(String chatId) async {
+    final data = await _client
+        .from(_table)
+        .select()
+        .eq('chat_id', chatId)
+        .order('fecha_creacion', ascending: false)
+        .limit(1);
+
+    if ((data as List).isEmpty) return null;
+    return MensajeChatModel.fromMap(data.first);
+  }
+
   /// [Realtime] Stream de mensajes nuevos en un chat.
   /// Supabase filtra por chat_id para eficiencia.
   Stream<List<MensajeChatModel>> streamMensajes(String chatId) {

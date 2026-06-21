@@ -45,6 +45,15 @@ class ChatsRepository {
     }
   }
 
+  /// Obtiene un chat por su ID.
+  Future<ChatModel?> getChatById(String chatId) async {
+    try {
+      return await _chatsService.getById(chatId);
+    } catch (e) {
+      throw Exception('Error al obtener chat: $e');
+    }
+  }
+
   /// Obtiene todos los chats del usuario.
   Future<List<ChatModel>> getMisChats(String userId) async {
     try {
@@ -108,6 +117,15 @@ class ChatsRepository {
       return await _mensajesService.getMensajes(chatId, limit: limit);
     } catch (e) {
       throw Exception('Error al obtener mensajes: $e');
+    }
+  }
+
+  /// Obtiene el último mensaje de un chat.
+  Future<MensajeChatModel?> getUltimoMensaje(String chatId) async {
+    try {
+      return await _mensajesService.getUltimoMensaje(chatId);
+    } catch (e) {
+      throw Exception('Error al obtener último mensaje: $e');
     }
   }
 

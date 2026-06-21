@@ -70,6 +70,12 @@ class ChatViewModel extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
+      _chat = await _chatsRepo.getChatById(chatId);
+      if (_chat == null) {
+        _error = 'No se encontró este chat.';
+        return;
+      }
+
       _suscribirMensajes(chatId);
       if (usuarioActualId != null) {
         await _chatsRepo.marcarLeidos(

@@ -4,18 +4,47 @@ library;
 
 import '../models/solicitud_servicio_model.dart';
 import '../services/solicitudes_service.dart';
+import '../services/storage_service.dart';
 
 class SolicitudesRepository {
   final SolicitudesService _service;
+  final StorageService _storageService;
 
-  SolicitudesRepository({SolicitudesService? service})
-      : _service = service ?? SolicitudesService();
+  SolicitudesRepository({
+    SolicitudesService? service,
+    StorageService? storageService,
+  })  : _service = service ?? SolicitudesService(),
+        _storageService = storageService ?? StorageService();
 
   // ── Cliente ───────────────────────────────────────────────────
 
-  Future<SolicitudServicioModel> createSolicitud(SolicitudServicioModel s) async {
+  Future<SolicitudServicioModel> createSolicitud(
+      SolicitudServicioModel s) async {
     try {
-      return await _service.createSolicitud(s);
+      var creada = await _service.createSolicitud(s.copyWith(
+        imagenesUrls: const [],
+        imagenesPendientesBytes: const [],
+      ));
+
+      if (s.imagenesPendientesBytes.isEmpty || creada.id == null) {
+        return creada;
+      }
+
+      final urls = <String>[];
+      for (var i = 0; i < s.imagenesPendientesBytes.length; i++) {
+        final url = await _storageService.uploadSolicitudImagenBytes(
+          solicitudId: creada.id!,
+          index: i,
+          bytes: s.imagenesPendientesBytes[i],
+        );
+        urls.add(url);
+      }
+
+      creada = await _service.updateImagenesUrls(
+        id: creada.id!,
+        imagenesUrls: urls,
+      );
+      return creada;
     } catch (e) {
       throw Exception('No se pudo crear la solicitud: $e');
     }

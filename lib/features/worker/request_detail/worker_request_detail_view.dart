@@ -35,7 +35,9 @@ class _DetailContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<WorkerRequestDetailViewModel>();
     final s = vm.solicitud;
-    if (s == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (s == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -64,6 +66,10 @@ class _DetailContent extends StatelessWidget {
             title: 'Descripción del trabajo',
             value: s.descripcion,
           ),
+          if (s.imagenesUrls.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _SolicitudImagenesGallery(urls: s.imagenesUrls),
+          ],
           const SizedBox(height: 12),
 
           // ── Ubicación ─────────────────────────────────────────
@@ -270,6 +276,70 @@ class _UrgenciaBadge extends StatelessWidget {
                 fontSize: 12, fontWeight: FontWeight.w700, color: color)),
       ]),
     );
+  }
+}
+
+class _SolicitudImagenesGallery extends StatelessWidget {
+  final List<String> urls;
+
+  const _SolicitudImagenesGallery({required this.urls});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        const Icon(Icons.photo_library_outlined,
+            size: 18, color: AppColors.grey500),
+        const SizedBox(width: 10),
+        Text(
+          'Fotos del problema',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+        ),
+      ]),
+      const SizedBox(height: 8),
+      SizedBox(
+        height: 96,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: urls.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 10),
+          itemBuilder: (context, index) {
+            final url = urls[index];
+            return InkWell(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              onTap: () => showDialog<void>(
+                context: context,
+                builder: (_) => Dialog(
+                  insetPadding: const EdgeInsets.all(16),
+                  child: InteractiveViewer(
+                    child: Image.network(url, fit: BoxFit.contain),
+                  ),
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                child: Image.network(
+                  url,
+                  width: 112,
+                  height: 96,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 112,
+                    height: 96,
+                    color: AppColors.grey100,
+                    child: const Icon(Icons.broken_image_outlined),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    ]);
   }
 }
 

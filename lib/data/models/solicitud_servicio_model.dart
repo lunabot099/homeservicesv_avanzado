@@ -3,6 +3,8 @@
 /// Representa una solicitud de trabajo creada por un cliente.
 library;
 
+import 'dart:typed_data';
+
 /// Urgencia de la solicitud.
 enum UrgenciaSolicitud {
   urgente,
@@ -47,8 +49,8 @@ enum TipoPago {
     }
   }
 
-  static TipoPago fromString(String v) =>
-      TipoPago.values.firstWhere((e) => e.name == v, orElse: () => TipoPago.a_convenir);
+  static TipoPago fromString(String v) => TipoPago.values
+      .firstWhere((e) => e.name == v, orElse: () => TipoPago.a_convenir);
 }
 
 /// Estado de la solicitud durante su ciclo de vida.
@@ -91,8 +93,9 @@ enum EstadoSolicitud {
     }
   }
 
-  static EstadoSolicitud fromString(String v) => EstadoSolicitud.values
-      .firstWhere((e) => e.name == v, orElse: () => EstadoSolicitud.en_busqueda);
+  static EstadoSolicitud fromString(String v) =>
+      EstadoSolicitud.values.firstWhere((e) => e.name == v,
+          orElse: () => EstadoSolicitud.en_busqueda);
 }
 
 class SolicitudServicioModel {
@@ -102,6 +105,8 @@ class SolicitudServicioModel {
   final String categoriaId;
   final String? subcategoriaId;
   final String descripcion;
+  final List<String> imagenesUrls;
+  final List<Uint8List> imagenesPendientesBytes;
   final UrgenciaSolicitud urgencia;
   final TipoPago tipoPago;
   final double? presupuestoEstimado;
@@ -129,6 +134,8 @@ class SolicitudServicioModel {
     required this.categoriaId,
     this.subcategoriaId,
     required this.descripcion,
+    this.imagenesUrls = const [],
+    this.imagenesPendientesBytes = const [],
     this.urgencia = UrgenciaSolicitud.flexible,
     this.tipoPago = TipoPago.a_convenir,
     this.presupuestoEstimado,
@@ -156,8 +163,11 @@ class SolicitudServicioModel {
       categoriaId: map['categoria'] as String,
       subcategoriaId: map['subcategoria'] as String?,
       descripcion: map['descripcion'] as String? ?? '',
-      urgencia: UrgenciaSolicitud.fromString(map['urgencia'] as String? ?? 'flexible'),
-      tipoPago: TipoPago.fromString(map['tipo_pago'] as String? ?? 'a_convenir'),
+      imagenesUrls: _parseStringList(map['imagenes_urls']),
+      urgencia: UrgenciaSolicitud.fromString(
+          map['urgencia'] as String? ?? 'flexible'),
+      tipoPago:
+          TipoPago.fromString(map['tipo_pago'] as String? ?? 'a_convenir'),
       presupuestoEstimado: (map['presupuesto_estimado'] as num?)?.toDouble(),
       horarioPreferido: map['horario_preferido'] as String?,
       departamento: map['departamento'] as String?,
@@ -168,7 +178,8 @@ class SolicitudServicioModel {
       puntoReferencia: map['punto_referencia'] as String?,
       latitud: (map['latitud'] as num?)?.toDouble(),
       longitud: (map['longitud'] as num?)?.toDouble(),
-      estado: EstadoSolicitud.fromString(map['estado'] as String? ?? 'buscando'),
+      estado:
+          EstadoSolicitud.fromString(map['estado'] as String? ?? 'buscando'),
       montoAcordado: (map['monto_acordado'] as num?)?.toDouble(),
       fechaServicio: map['fecha_servicio'] != null
           ? DateTime.tryParse(map['fecha_servicio'] as String)
@@ -188,9 +199,11 @@ class SolicitudServicioModel {
         'categoria': categoriaId,
         if (subcategoriaId != null) 'subcategoria': subcategoriaId,
         'descripcion': descripcion,
+        if (imagenesUrls.isNotEmpty) 'imagenes_urls': imagenesUrls,
         'urgencia': urgencia.name,
         'tipo_pago': tipoPago.name,
-        if (presupuestoEstimado != null) 'presupuesto_estimado': presupuestoEstimado,
+        if (presupuestoEstimado != null)
+          'presupuesto_estimado': presupuestoEstimado,
         if (horarioPreferido != null) 'horario_preferido': horarioPreferido,
         if (departamento != null) 'departamento': departamento,
         if (municipio != null) 'municipio': municipio,
@@ -210,6 +223,8 @@ class SolicitudServicioModel {
     String? categoriaId,
     String? subcategoriaId,
     String? descripcion,
+    List<String>? imagenesUrls,
+    List<Uint8List>? imagenesPendientesBytes,
     UrgenciaSolicitud? urgencia,
     TipoPago? tipoPago,
     double? presupuestoEstimado,
@@ -235,6 +250,9 @@ class SolicitudServicioModel {
         categoriaId: categoriaId ?? this.categoriaId,
         subcategoriaId: subcategoriaId ?? this.subcategoriaId,
         descripcion: descripcion ?? this.descripcion,
+        imagenesUrls: imagenesUrls ?? this.imagenesUrls,
+        imagenesPendientesBytes:
+            imagenesPendientesBytes ?? this.imagenesPendientesBytes,
         urgencia: urgencia ?? this.urgencia,
         tipoPago: tipoPago ?? this.tipoPago,
         presupuestoEstimado: presupuestoEstimado ?? this.presupuestoEstimado,
@@ -257,4 +275,11 @@ class SolicitudServicioModel {
   @override
   String toString() =>
       'SolicitudServicioModel(id: $id, categoria: $categoriaId, estado: ${estado.name})';
+}
+
+List<String> _parseStringList(dynamic value) {
+  if (value is List) {
+    return value.whereType<String>().where((e) => e.isNotEmpty).toList();
+  }
+  return const [];
 }
