@@ -42,12 +42,16 @@ class AuthRepository {
     required String email,
     required String password,
     String? nombreCompleto,
+    String? telefono,
+    String? rol,
   }) async {
     try {
       final response = await _authService.signUpWithEmail(
         email: email,
         password: password,
         nombreCompleto: nombreCompleto,
+        telefono: telefono,
+        rol: rol,
       );
 
       final user = response.user;
@@ -67,6 +71,9 @@ class AuthRepository {
 
   /// Retorna el usuario autenticado actualmente, o null.
   User? get currentUser => _authService.currentUser;
+
+  /// Retorna la sesión autenticada actual, o null si falta confirmar correo.
+  Session? get currentSession => _authService.currentSession;
 
   /// Stream de cambios de estado de autenticación.
   Stream<AuthState> get authStateChanges => _authService.onAuthStateChange;

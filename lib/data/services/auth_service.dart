@@ -28,12 +28,16 @@ class AuthService {
     required String email,
     required String password,
     String? nombreCompleto,
+    String? telefono,
+    String? rol,
   }) async {
     return await _auth.signUp(
       email: email,
       password: password,
       data: {
         if (nombreCompleto != null) 'nombre_completo': nombreCompleto,
+        if (telefono != null) 'telefono': telefono,
+        if (rol != null) 'rol': rol,
       },
     );
   }

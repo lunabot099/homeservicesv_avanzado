@@ -23,6 +23,7 @@ class WorkerRegisterViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   bool _registroExitoso = false;
+  bool _requiresEmailConfirmation = false;
 
   WorkerRegisterViewModel({
     AuthRepository? authRepository,
@@ -35,6 +36,7 @@ class WorkerRegisterViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get registroExitoso => _registroExitoso;
+  bool get requiresEmailConfirmation => _requiresEmailConfirmation;
 
   /// Registra un nuevo trabajador.
   ///
@@ -52,6 +54,7 @@ class WorkerRegisterViewModel extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     _registroExitoso = false;
+    _requiresEmailConfirmation = false;
     notifyListeners();
 
     try {
@@ -60,7 +63,15 @@ class WorkerRegisterViewModel extends ChangeNotifier {
         email: correo,
         password: password,
         nombreCompleto: nombreCompleto,
+        telefono: telefono,
+        rol: UserRole.trabajador.name,
       );
+
+      if (_authRepository.currentSession == null) {
+        _requiresEmailConfirmation = true;
+        _registroExitoso = true;
+        return true;
+      }
 
       // 2. Crear perfil con el mismo UUID — rol=trabajador
       await _perfilesRepository.createPerfil(

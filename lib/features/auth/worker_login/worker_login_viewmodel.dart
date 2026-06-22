@@ -9,6 +9,7 @@
 library;
 
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfiles_repository.dart';
 import '../../../data/repositories/formulario_repository.dart';
@@ -68,9 +69,10 @@ class WorkerLoginViewModel extends ChangeNotifier {
         password: password,
       );
 
-      // 2. Obtener perfil y verificar rol
-      final perfil = await _perfilesRepository.getPerfilById(user.id);
-      if (perfil != null && perfil.rol != UserRole.trabajador) {
+      // 2. Obtener perfil y verificar rol. Si el registro quedó pendiente
+      // por confirmación de correo, el perfil se crea en el primer login real.
+      final perfil = await _ensurePerfilTrabajador(user, email);
+      if (perfil.rol != UserRole.trabajador) {
         await _authRepository.signOut();
         _error = 'Esta cuenta no es de trabajador. Usa el acceso correcto.';
         notifyListeners();
@@ -103,6 +105,28 @@ class WorkerLoginViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<PerfilModel> _ensurePerfilTrabajador(User user, String email) async {
+    final existing = await _perfilesRepository.getPerfilById(user.id);
+    if (existing != null) return existing;
+
+    final metadata = user.userMetadata ?? const <String, dynamic>{};
+    final metadataRole = metadata['rol']?.toString();
+    if (metadataRole != null &&
+        UserRole.fromString(metadataRole) != UserRole.trabajador) {
+      throw Exception('Esta cuenta no es de trabajador. Usa el acceso correcto.');
+    }
+
+    return _perfilesRepository.createPerfil(
+      PerfilModel(
+        id: user.id,
+        nombreCompleto: metadata['nombre_completo']?.toString() ?? '',
+        correo: user.email ?? email,
+        telefono: metadata['telefono']?.toString(),
+        rol: UserRole.trabajador,
+      ),
+    );
   }
 
   void clearError() {

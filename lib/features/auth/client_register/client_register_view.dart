@@ -66,9 +66,13 @@ class _ClientRegisterContentState extends State<_ClientRegisterContent> {
       telefono: _telefonoCtrl.text.trim().isEmpty ? null : _telefonoCtrl.text.trim(),
     );
 
-    if (success && mounted) {
-      context.go(RouteNames.clientPhotoOnboarding);
+    if (!success || !mounted) return;
+
+    if (vm.requiresEmailConfirmation) {
+      return;
     }
+
+    context.go(RouteNames.clientPhotoOnboarding);
   }
 
   @override
@@ -177,6 +181,29 @@ class _ClientRegisterContentState extends State<_ClientRegisterContent> {
                         setState(() => _obscureConfirm = !_obscureConfirm),
                   ),
                 ),
+                if (vm.requiresEmailConfirmation) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.infoLight,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.mark_email_read_outlined,
+                            color: AppColors.info, size: 18),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Cuenta creada. Confirma tu correo y luego inicia sesión.',
+                            style: TextStyle(color: AppColors.info, fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 // ── Error ─────────────────────────────────────
                 if (vm.error != null) ...[
                   const SizedBox(height: 16),

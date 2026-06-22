@@ -17,6 +17,7 @@ class ClientRegisterViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   bool _registroExitoso = false;
+  bool _requiresEmailConfirmation = false;
 
   ClientRegisterViewModel({
     AuthRepository? authRepository,
@@ -29,6 +30,7 @@ class ClientRegisterViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get registroExitoso => _registroExitoso;
+  bool get requiresEmailConfirmation => _requiresEmailConfirmation;
 
   /// Registra un nuevo cliente.
   /// 1. Crea usuario en Supabase Auth
@@ -42,6 +44,7 @@ class ClientRegisterViewModel extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     _registroExitoso = false;
+    _requiresEmailConfirmation = false;
     notifyListeners();
 
     try {
@@ -50,7 +53,15 @@ class ClientRegisterViewModel extends ChangeNotifier {
         email: correo,
         password: password,
         nombreCompleto: nombreCompleto,
+        telefono: telefono,
+        rol: UserRole.cliente.name,
       );
+
+      if (_authRepository.currentSession == null) {
+        _requiresEmailConfirmation = true;
+        _registroExitoso = true;
+        return true;
+      }
 
       // 2. Crear perfil en la tabla `perfiles`
       await _perfilesRepository.createPerfil(
