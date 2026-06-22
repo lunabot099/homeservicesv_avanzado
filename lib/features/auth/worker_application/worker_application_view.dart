@@ -32,10 +32,9 @@ class WorkerApplicationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create:
-          (context) => WorkerApplicationViewModel(
-            sessionController: context.read<SessionController>(),
-          ),
+      create: (context) => WorkerApplicationViewModel(
+        sessionController: context.read<SessionController>(),
+      ),
       child: const _WorkerApplicationContent(),
     );
   }
@@ -94,7 +93,7 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
     vm.setFotoDuiBytes(bytes, mime: mime);
   }
 
-  Future<void> _pickAntecedentes() async {
+  Future<void> _pickAntecedentesPenales() async {
     final vm = context.read<WorkerApplicationViewModel>();
 
     // withData: true garantiza que PlatformFile.bytes esté disponible en web.
@@ -116,7 +115,28 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
     final ext = (pf.extension ?? 'pdf').toLowerCase();
     final mime = ext == 'pdf' ? 'application/pdf' : 'image/jpeg';
 
-    vm.setAntecedentesBytes(bytes, mime: mime);
+    vm.setAntecedentesPenalesBytes(bytes, mime: mime);
+  }
+
+  Future<void> _pickAntecedentesPoliciales() async {
+    final vm = context.read<WorkerApplicationViewModel>();
+
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      allowMultiple: false,
+      withData: true,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+    final pf = result.files.single;
+    final bytes = pf.bytes;
+    if (bytes == null) return;
+
+    final ext = (pf.extension ?? 'pdf').toLowerCase();
+    final mime = ext == 'pdf' ? 'application/pdf' : 'image/jpeg';
+
+    vm.setAntecedentesPolicialesBytes(bytes, mime: mime);
   }
 
   /// Infiere el MIME type a partir de la extensión del path.
@@ -137,10 +157,9 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
     final vm = context.read<WorkerApplicationViewModel>();
     final success = await vm.submitApplication(
       dui: _duiCtrl.text.trim(),
-      direccion:
-          _direccionCtrl.text.trim().isEmpty
-              ? null
-              : _direccionCtrl.text.trim(),
+      direccion: _direccionCtrl.text.trim().isEmpty
+          ? null
+          : _direccionCtrl.text.trim(),
     );
     if (success && mounted) {
       context.go(RouteNames.workerPending);
@@ -215,20 +234,20 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
                 const SizedBox(height: 28),
 
                 // ── Sección: Documentos ─────────────────────────
-                _SectionTitle(title: 'Documentos (opcionales)'),
+                _SectionTitle(title: 'Documentos obligatorios'),
                 const SizedBox(height: 8),
                 Text(
-                  'Sube tus documentos ahora para agilizar el proceso de verificación.',
+                  'Estos documentos son necesarios para revisar y autorizar tu cuenta de trabajador.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                        color: AppColors.textSecondary,
+                      ),
                 ),
                 const SizedBox(height: 16),
 
                 // Foto de perfil
                 _DocumentPickerTile(
                   label: 'Foto de perfil',
-                  description: 'Imagen clara de tu rostro',
+                  description: 'Obligatoria: imagen clara de tu rostro',
                   icon: Icons.person_rounded,
                   isLoading: vm.uploadingFotoPerfil,
                   isSelected: vm.hayFotoPerfil,
@@ -240,7 +259,7 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
                 // Foto del DUI
                 _DocumentPickerTile(
                   label: 'Foto del DUI',
-                  description: 'Foto legible del frente de tu DUI',
+                  description: 'Obligatoria: foto legible del frente de tu DUI',
                   icon: Icons.badge_rounded,
                   isLoading: vm.uploadingDui,
                   isSelected: vm.hayFotoDui,
@@ -252,17 +271,32 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
                 // Antecedentes penales
                 _DocumentPickerTile(
                   label: 'Antecedentes penales',
-                  description: 'PDF o imagen del certificado',
+                  description: 'Obligatorio: PDF o imagen del certificado',
                   icon: Icons.description_rounded,
-                  isLoading: vm.uploadingAntecedentes,
-                  isSelected: vm.hayAntecedentes,
-                  onTap: _pickAntecedentes,
+                  isLoading: vm.uploadingAntecedentesPenales,
+                  isSelected: vm.hayAntecedentesPenales,
+                  onTap: _pickAntecedentesPenales,
                   // PDF no tiene preview de imagen
+                  previewBytes: vm.antecedentesPenalesMime == 'application/pdf'
+                      ? null
+                      : vm.antecedentesPenalesBytes,
+                  isPdf: vm.antecedentesPenalesMime == 'application/pdf',
+                ),
+                const SizedBox(height: 12),
+
+                // Antecedentes policiales
+                _DocumentPickerTile(
+                  label: 'Antecedentes policiales',
+                  description: 'Obligatorio: PDF o imagen del certificado',
+                  icon: Icons.policy_rounded,
+                  isLoading: vm.uploadingAntecedentesPoliciales,
+                  isSelected: vm.hayAntecedentesPoliciales,
+                  onTap: _pickAntecedentesPoliciales,
                   previewBytes:
-                      vm.antecedentesMime == 'application/pdf'
+                      vm.antecedentesPolicialesMime == 'application/pdf'
                           ? null
-                          : vm.antecedentesBytes,
-                  isPdf: vm.antecedentesMime == 'application/pdf',
+                          : vm.antecedentesPolicialesBytes,
+                  isPdf: vm.antecedentesPolicialesMime == 'application/pdf',
                 ),
 
                 // ── Error ───────────────────────────────────────
@@ -302,9 +336,9 @@ class _SectionTitle extends StatelessWidget {
     return Text(
       title,
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.w700,
-        color: AppColors.textPrimary,
-      ),
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
     );
   }
 }
@@ -379,15 +413,15 @@ class _ReadOnlyRow extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                      color: AppColors.textSecondary,
+                    ),
               ),
               Text(
                 value,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
             ],
           ),
@@ -470,16 +504,14 @@ class _DocumentPickerTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? AppColors.workerRole.withValues(alpha: 0.06)
-                  : AppColors.surface,
+          color: isSelected
+              ? AppColors.workerRole.withValues(alpha: 0.06)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           border: Border.all(
-            color:
-                isSelected
-                    ? AppColors.workerRole.withValues(alpha: 0.4)
-                    : AppColors.border,
+            color: isSelected
+                ? AppColors.workerRole.withValues(alpha: 0.4)
+                : AppColors.border,
           ),
         ),
         child: Row(
@@ -498,9 +530,9 @@ class _DocumentPickerTile extends StatelessWidget {
                   Text(
                     label,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -510,11 +542,10 @@ class _DocumentPickerTile extends StatelessWidget {
                             : 'Imagen seleccionada ✓')
                         : description,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color:
-                          isSelected
+                          color: isSelected
                               ? AppColors.workerRole
                               : AppColors.textSecondary,
-                    ),
+                        ),
                   ),
                 ],
               ),

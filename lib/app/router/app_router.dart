@@ -44,15 +44,19 @@ import '../../features/worker/messages/worker_messages_view.dart';
 import '../../features/shared/chat/chat_view.dart';
 import '../../data/models/solicitud_servicio_model.dart';
 import '../../data/models/postulacion_solicitud_model.dart';
+import '../../data/models/formulario_trabajador_model.dart';
+import '../../data/models/perfil_model.dart';
 import 'route_names.dart';
 
 class AppRouter {
   AppRouter._();
 
   static GoRouter createRouter(BuildContext context) {
+    final sessionController = context.read<SessionController>();
+
     return GoRouter(
       initialLocation: RouteNames.roleSelector,
-
+      refreshListenable: sessionController,
       redirect: (BuildContext context, GoRouterState state) {
         final session = context.read<SessionController>();
         final isAuthenticated = session.isAuthenticated;
@@ -69,26 +73,85 @@ class AppRouter {
           // workerApplication y workerPending requieren sesión activa
         ];
 
-        final isPublicRoute =
-            publicRoutes.any((r) => currentPath == r || currentPath.startsWith(r));
+        final isPublicRoute = publicRoutes.contains(currentPath);
+        final isWorkerRoute = currentPath.startsWith('/worker');
+        final isWorkerOnboardingRoute =
+            currentPath == RouteNames.workerApplication ||
+                currentPath == RouteNames.workerPending;
+        final isWorkerPublicRoute = currentPath == RouteNames.workerLogin ||
+            currentPath == RouteNames.workerRegister;
+        final isProtectedWorkerRoute =
+            isWorkerRoute && !isWorkerPublicRoute && !isWorkerOnboardingRoute;
 
         // Redirigir al selector de rol si no hay sesión y la ruta no es pública
         if (!isAuthenticated && !isPublicRoute) {
           return RouteNames.roleSelector;
         }
 
+        if (isAuthenticated && isProtectedWorkerRoute) {
+          if (!session.isWorker) {
+            return RouteNames.clientHome;
+          }
+
+          if (!session.hasApprovedWorkerAccess) {
+            final hasRequiredDocuments =
+                session.currentWorkerApplication?.hasRequiredDocuments ?? false;
+            return session.currentWorkerApplication == null ||
+                    !hasRequiredDocuments
+                ? RouteNames.workerApplication
+                : RouteNames.workerPending;
+          }
+        }
+
+        if (isAuthenticated && isWorkerOnboardingRoute) {
+          if (!session.isWorker) {
+            return RouteNames.clientHome;
+          }
+
+          if (session.hasApprovedWorkerAccess) {
+            return RouteNames.workerHome;
+          }
+
+          final applicationStatus = session.currentWorkerApplication?.estado;
+          if (currentPath == RouteNames.workerApplication &&
+              applicationStatus != null &&
+              (session.currentWorkerApplication?.hasRequiredDocuments ??
+                  false)) {
+            return RouteNames.workerPending;
+          }
+          if (currentPath == RouteNames.workerPending &&
+              (applicationStatus == null ||
+                  !(session.currentWorkerApplication?.hasRequiredDocuments ??
+                      false))) {
+            return RouteNames.workerApplication;
+          }
+        }
+
         if (isAuthenticated && publicRoutes.contains(currentPath)) {
           final role = session.currentRole;
           if (role != null) {
-            return role.name == 'trabajador'
-                ? RouteNames.workerHome
-                : RouteNames.clientHome;
+            if (role == UserRole.trabajador) {
+              final isApproved = session.hasApprovedWorkerAccess;
+              if (isApproved) return RouteNames.workerHome;
+
+              final applicationStatus =
+                  session.currentWorkerApplication?.estado;
+              final hasRequiredDocuments =
+                  session.currentWorkerApplication?.hasRequiredDocuments ??
+                      false;
+              return applicationStatus == EstadoFormulario.aprobado &&
+                      hasRequiredDocuments
+                  ? RouteNames.workerHome
+                  : applicationStatus == null || !hasRequiredDocuments
+                      ? RouteNames.workerApplication
+                      : RouteNames.workerPending;
+            }
+            return RouteNames.clientHome;
           }
         }
 
         return null;
       },
-
       routes: [
         // ── Auth ──────────────────────────────────────────────────
         GoRoute(
@@ -344,8 +407,9 @@ class AppRouter {
                 args: ChatArgs.fromMap(extra),
               );
             }
-            return ChatView(chatId: chatId == 'new' ? null : chatId, args:
-                extra != null ? ChatArgs.fromMap(extra) : null);
+            return ChatView(
+                chatId: chatId == 'new' ? null : chatId,
+                args: extra != null ? ChatArgs.fromMap(extra) : null);
           },
         ),
 
@@ -363,12 +427,12 @@ class AppRouter {
                 args: ChatArgs.fromMap(extra),
               );
             }
-            return ChatView(chatId: chatId == 'new' ? null : chatId, args:
-                extra != null ? ChatArgs.fromMap(extra) : null);
+            return ChatView(
+                chatId: chatId == 'new' ? null : chatId,
+                args: extra != null ? ChatArgs.fromMap(extra) : null);
           },
         ),
       ],
-
       errorBuilder: (context, state) => Scaffold(
         body: Center(
           child: Column(

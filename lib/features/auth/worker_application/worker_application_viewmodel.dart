@@ -31,13 +31,17 @@ class WorkerApplicationViewModel extends ChangeNotifier {
   Uint8List? _fotoDuiBytes;
   String _fotoDuiMime = 'image/jpeg';
 
-  Uint8List? _antecedentesBytes;
-  String _antecedentesMime = 'application/pdf';
+  Uint8List? _antecedentesPenalesBytes;
+  String _antecedentesPenalesMime = 'application/pdf';
+
+  Uint8List? _antecedentesPolicialesBytes;
+  String _antecedentesPolicialesMime = 'application/pdf';
 
   // ── Estado de carga por archivo ───────────────────────────────
   bool _uploadingFotoPerfil = false;
   bool _uploadingDui = false;
-  bool _uploadingAntecedentes = false;
+  bool _uploadingAntecedentesPenales = false;
+  bool _uploadingAntecedentesPoliciales = false;
 
   WorkerApplicationViewModel({
     FormularioRepository? formularioRepository,
@@ -54,16 +58,21 @@ class WorkerApplicationViewModel extends ChangeNotifier {
 
   Uint8List? get fotoPerfilBytes => _fotoPerfilBytes;
   Uint8List? get fotoDuiBytes => _fotoDuiBytes;
-  Uint8List? get antecedentesBytes => _antecedentesBytes;
-  String get antecedentesMime => _antecedentesMime;
+  Uint8List? get antecedentesPenalesBytes => _antecedentesPenalesBytes;
+  String get antecedentesPenalesMime => _antecedentesPenalesMime;
+
+  Uint8List? get antecedentesPolicialesBytes => _antecedentesPolicialesBytes;
+  String get antecedentesPolicialesMime => _antecedentesPolicialesMime;
 
   bool get hayFotoPerfil => _fotoPerfilBytes != null;
   bool get hayFotoDui => _fotoDuiBytes != null;
-  bool get hayAntecedentes => _antecedentesBytes != null;
+  bool get hayAntecedentesPenales => _antecedentesPenalesBytes != null;
+  bool get hayAntecedentesPoliciales => _antecedentesPolicialesBytes != null;
 
   bool get uploadingFotoPerfil => _uploadingFotoPerfil;
   bool get uploadingDui => _uploadingDui;
-  bool get uploadingAntecedentes => _uploadingAntecedentes;
+  bool get uploadingAntecedentesPenales => _uploadingAntecedentesPenales;
+  bool get uploadingAntecedentesPoliciales => _uploadingAntecedentesPoliciales;
 
   // ── Setters de archivos ───────────────────────────────────────
 
@@ -79,12 +88,21 @@ class WorkerApplicationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setAntecedentesBytes(
+  void setAntecedentesPenalesBytes(
     Uint8List bytes, {
     String mime = 'application/pdf',
   }) {
-    _antecedentesBytes = bytes;
-    _antecedentesMime = mime;
+    _antecedentesPenalesBytes = bytes;
+    _antecedentesPenalesMime = mime;
+    notifyListeners();
+  }
+
+  void setAntecedentesPolicialesBytes(
+    Uint8List bytes, {
+    String mime = 'application/pdf',
+  }) {
+    _antecedentesPolicialesBytes = bytes;
+    _antecedentesPolicialesMime = mime;
     notifyListeners();
   }
 
@@ -121,54 +139,81 @@ class WorkerApplicationViewModel extends ChangeNotifier {
 
       String? fotoPerfilUrl;
       String? fotoDuiUrl;
-      String? antecedentesUrl;
+      String? antecedentesPenalesUrl;
+      String? antecedentesPolicialesUrl;
+
+      if (_fotoPerfilBytes == null) {
+        _error = 'La foto de perfil es obligatoria.';
+        return false;
+      }
+      if (_fotoDuiBytes == null) {
+        _error = 'La foto del DUI es obligatoria.';
+        return false;
+      }
+      if (_antecedentesPenalesBytes == null) {
+        _error = 'Los antecedentes penales son obligatorios.';
+        return false;
+      }
+      if (_antecedentesPolicialesBytes == null) {
+        _error = 'Los antecedentes policiales son obligatorios.';
+        return false;
+      }
 
       // ── 1. Subir foto de perfil ───────────────────────────────
-      if (_fotoPerfilBytes != null) {
-        _uploadingFotoPerfil = true;
+      _uploadingFotoPerfil = true;
+      notifyListeners();
+      try {
+        fotoPerfilUrl = await _storageService.uploadFotoPerfilBytes(
+          userId: userId,
+          bytes: _fotoPerfilBytes!,
+          contentType: _fotoPerfilMime,
+        );
+      } finally {
+        _uploadingFotoPerfil = false;
         notifyListeners();
-        try {
-          fotoPerfilUrl = await _storageService.uploadFotoPerfilBytes(
-            userId: userId,
-            bytes: _fotoPerfilBytes!,
-            contentType: _fotoPerfilMime,
-          );
-        } finally {
-          _uploadingFotoPerfil = false;
-          notifyListeners();
-        }
       }
 
       // ── 2. Subir foto de DUI ──────────────────────────────────
-      if (_fotoDuiBytes != null) {
-        _uploadingDui = true;
+      _uploadingDui = true;
+      notifyListeners();
+      try {
+        fotoDuiUrl = await _storageService.uploadFotoDuiBytes(
+          userId: userId,
+          bytes: _fotoDuiBytes!,
+          contentType: _fotoDuiMime,
+        );
+      } finally {
+        _uploadingDui = false;
         notifyListeners();
-        try {
-          fotoDuiUrl = await _storageService.uploadFotoDuiBytes(
-            userId: userId,
-            bytes: _fotoDuiBytes!,
-            contentType: _fotoDuiMime,
-          );
-        } finally {
-          _uploadingDui = false;
-          notifyListeners();
-        }
       }
 
-      // ── 3. Subir antecedentes ─────────────────────────────────
-      if (_antecedentesBytes != null) {
-        _uploadingAntecedentes = true;
+      // ── 3. Subir antecedentes penales ─────────────────────────
+      _uploadingAntecedentesPenales = true;
+      notifyListeners();
+      try {
+        antecedentesPenalesUrl = await _storageService.uploadAntecedentesBytes(
+          userId: userId,
+          bytes: _antecedentesPenalesBytes!,
+          contentType: _antecedentesPenalesMime,
+        );
+      } finally {
+        _uploadingAntecedentesPenales = false;
         notifyListeners();
-        try {
-          antecedentesUrl = await _storageService.uploadAntecedentesBytes(
-            userId: userId,
-            bytes: _antecedentesBytes!,
-            contentType: _antecedentesMime,
-          );
-        } finally {
-          _uploadingAntecedentes = false;
-          notifyListeners();
-        }
+      }
+
+      // ── 4. Subir antecedentes policiales ──────────────────────
+      _uploadingAntecedentesPoliciales = true;
+      notifyListeners();
+      try {
+        antecedentesPolicialesUrl =
+            await _storageService.uploadAntecedentesPolicialesBytes(
+          userId: userId,
+          bytes: _antecedentesPolicialesBytes!,
+          contentType: _antecedentesPolicialesMime,
+        );
+      } finally {
+        _uploadingAntecedentesPoliciales = false;
+        notifyListeners();
       }
 
       // ── 4. Guardar formulario en Supabase ─────────────────────
@@ -180,10 +225,12 @@ class WorkerApplicationViewModel extends ChangeNotifier {
         direccion: direccion,
         fotoPerfilUrl: fotoPerfilUrl,
         fotoDuiUrl: fotoDuiUrl,
-        antecedentespenalesUrl: antecedentesUrl,
+        antecedentespenalesUrl: antecedentesPenalesUrl,
+        antecedentesPolicialesUrl: antecedentesPolicialesUrl,
       );
 
       await _formularioRepository.submitFormulario(formulario);
+      await _sessionController.refreshPerfil();
       _enviado = true;
       return true;
     } catch (e) {
@@ -206,10 +253,12 @@ class WorkerApplicationViewModel extends ChangeNotifier {
     _enviado = false;
     _fotoPerfilBytes = null;
     _fotoDuiBytes = null;
-    _antecedentesBytes = null;
+    _antecedentesPenalesBytes = null;
+    _antecedentesPolicialesBytes = null;
     _uploadingFotoPerfil = false;
     _uploadingDui = false;
-    _uploadingAntecedentes = false;
+    _uploadingAntecedentesPenales = false;
+    _uploadingAntecedentesPoliciales = false;
     notifyListeners();
   }
 }

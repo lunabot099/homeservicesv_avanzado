@@ -30,6 +30,7 @@ class FormularioTrabajadorModel {
   final String? fotoPerfilUrl;
   final String? fotoDuiUrl;
   final String? antecedentespenalesUrl;
+  final String? antecedentesPolicialesUrl;
   final EstadoFormulario estado;
   final String? notasAdmin;
   final DateTime? fechaCreacion;
@@ -45,6 +46,7 @@ class FormularioTrabajadorModel {
     this.fotoPerfilUrl,
     this.fotoDuiUrl,
     this.antecedentespenalesUrl,
+    this.antecedentesPolicialesUrl,
     this.estado = EstadoFormulario.pendiente,
     this.notasAdmin,
     this.fechaCreacion,
@@ -63,6 +65,7 @@ class FormularioTrabajadorModel {
       fotoPerfilUrl: map['foto_perfil_url'] as String?,
       fotoDuiUrl: map['foto_dui_url'] as String?,
       antecedentespenalesUrl: map['antecedentes_penales_url'] as String?,
+      antecedentesPolicialesUrl: map['antecedentes_policiales_url'] as String?,
       estado: EstadoFormulario.fromString(
         map['estado'] as String? ?? 'pendiente',
       ),
@@ -76,6 +79,12 @@ class FormularioTrabajadorModel {
     );
   }
 
+  bool get hasRequiredDocuments =>
+      (fotoPerfilUrl?.isNotEmpty ?? false) &&
+      (fotoDuiUrl?.isNotEmpty ?? false) &&
+      (antecedentespenalesUrl?.isNotEmpty ?? false) &&
+      (antecedentesPolicialesUrl?.isNotEmpty ?? false);
+
   /// Convierte el modelo a mapa para insertar en Supabase.
   Map<String, dynamic> toMap() {
     return {
@@ -88,6 +97,8 @@ class FormularioTrabajadorModel {
       if (fotoDuiUrl != null) 'foto_dui_url': fotoDuiUrl,
       if (antecedentespenalesUrl != null)
         'antecedentes_penales_url': antecedentespenalesUrl,
+      if (antecedentesPolicialesUrl != null)
+        'antecedentes_policiales_url': antecedentesPolicialesUrl,
       'estado': estado.name,
       if (notasAdmin != null) 'notas_admin': notasAdmin,
     };
@@ -104,6 +115,7 @@ class FormularioTrabajadorModel {
     String? fotoPerfilUrl,
     String? fotoDuiUrl,
     String? antecedentespenalesUrl,
+    String? antecedentesPolicialesUrl,
     EstadoFormulario? estado,
     String? notasAdmin,
     DateTime? fechaCreacion,
@@ -118,7 +130,10 @@ class FormularioTrabajadorModel {
       direccion: direccion ?? this.direccion,
       fotoPerfilUrl: fotoPerfilUrl ?? this.fotoPerfilUrl,
       fotoDuiUrl: fotoDuiUrl ?? this.fotoDuiUrl,
-      antecedentespenalesUrl: antecedentespenalesUrl ?? this.antecedentespenalesUrl,
+      antecedentespenalesUrl:
+          antecedentespenalesUrl ?? this.antecedentespenalesUrl,
+      antecedentesPolicialesUrl:
+          antecedentesPolicialesUrl ?? this.antecedentesPolicialesUrl,
       estado: estado ?? this.estado,
       notasAdmin: notasAdmin ?? this.notasAdmin,
       fechaCreacion: fechaCreacion ?? this.fechaCreacion,

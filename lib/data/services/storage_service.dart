@@ -218,4 +218,20 @@ class StorageService {
       contentType: contentType,
     );
   }
+
+  /// Sube documento de antecedentes policiales usando bytes.
+  /// Bucket: antecedentes-documentos | Path: {userId}/antecedentes_policiales.{ext}
+  Future<String> uploadAntecedentesPolicialesBytes({
+    required String userId,
+    required Uint8List bytes,
+    String contentType = 'application/pdf',
+  }) async {
+    final ext = contentType == 'application/pdf' ? 'pdf' : 'jpg';
+    return uploadBinaryData(
+      bucket: Env.bucketAntecedentesDocumentos,
+      path: '$userId/antecedentes_policiales.$ext',
+      bytes: bytes,
+      contentType: contentType,
+    );
+  }
 }
