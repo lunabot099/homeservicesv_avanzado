@@ -78,7 +78,9 @@ class ClientLoginViewModel extends ChangeNotifier {
     return _perfilesRepository.createPerfil(
       PerfilModel(
         id: user.id,
-        nombreCompleto: metadata['nombre_completo']?.toString() ?? '',
+        nombreCompleto:
+            (metadata['nombre_completo'] ?? metadata['nombre'])?.toString() ??
+                '',
         correo: user.email ?? email,
         telefono: metadata['telefono']?.toString(),
         rol: UserRole.cliente,

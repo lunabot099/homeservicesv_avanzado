@@ -121,6 +121,7 @@ class ClientProfileViewModel extends ChangeNotifier {
       await _perfilesRepository.updatePerfil(
         id: userId,
         fields: {
+          'nombre': nombreCompleto,
           'nombre_completo': nombreCompleto,
           if (telefono != null && telefono.isNotEmpty) 'telefono': telefono,
         },

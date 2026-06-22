@@ -49,9 +49,11 @@ class PerfilModel {
 
   /// Crea un [PerfilModel] desde un mapa de Supabase.
   factory PerfilModel.fromMap(Map<String, dynamic> map) {
+    final nombre = map['nombre_completo'] ?? map['nombre'];
+
     return PerfilModel(
       id: map['id'] as String,
-      nombreCompleto: map['nombre_completo'] as String? ?? '',
+      nombreCompleto: nombre as String? ?? '',
       correo: map['correo'] as String? ?? '',
       telefono: map['telefono'] as String?,
       rol: UserRole.fromString(map['rol'] as String? ?? 'cliente'),
@@ -72,12 +74,14 @@ class PerfilModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'nombre': nombreCompleto,
       'nombre_completo': nombreCompleto,
       'correo': correo,
       if (telefono != null) 'telefono': telefono,
       'rol': rol.name,
       if (fotoPerfilUrl != null) 'foto_perfil_url': fotoPerfilUrl,
-      if (promedioCalificacion != null) 'promedio_calificacion': promedioCalificacion,
+      if (promedioCalificacion != null)
+        'promedio_calificacion': promedioCalificacion,
       if (cantidadResenas != null) 'cantidad_resenas': cantidadResenas,
       'activo': activo,
     };

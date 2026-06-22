@@ -35,6 +35,7 @@ class AuthService {
       email: email,
       password: password,
       data: {
+        if (nombreCompleto != null) 'nombre': nombreCompleto,
         if (nombreCompleto != null) 'nombre_completo': nombreCompleto,
         if (telefono != null) 'telefono': telefono,
         if (rol != null) 'rol': rol,

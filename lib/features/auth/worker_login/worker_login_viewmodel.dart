@@ -115,13 +115,16 @@ class WorkerLoginViewModel extends ChangeNotifier {
     final metadataRole = metadata['rol']?.toString();
     if (metadataRole != null &&
         UserRole.fromString(metadataRole) != UserRole.trabajador) {
-      throw Exception('Esta cuenta no es de trabajador. Usa el acceso correcto.');
+      throw Exception(
+          'Esta cuenta no es de trabajador. Usa el acceso correcto.');
     }
 
     return _perfilesRepository.createPerfil(
       PerfilModel(
         id: user.id,
-        nombreCompleto: metadata['nombre_completo']?.toString() ?? '',
+        nombreCompleto:
+            (metadata['nombre_completo'] ?? metadata['nombre'])?.toString() ??
+                '',
         correo: user.email ?? email,
         telefono: metadata['telefono']?.toString(),
         rol: UserRole.trabajador,

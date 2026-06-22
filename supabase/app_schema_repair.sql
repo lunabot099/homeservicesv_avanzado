@@ -24,6 +24,7 @@ create table if not exists public.perfiles (
 );
 
 alter table public.perfiles
+  add column if not exists nombre text not null default '',
   add column if not exists nombre_completo text not null default '',
   add column if not exists correo text not null default '',
   add column if not exists telefono text,
