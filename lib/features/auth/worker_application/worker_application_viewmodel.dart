@@ -9,6 +9,7 @@
 /// - La subida usa uploadBinary de Supabase Storage.
 library;
 
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../../../data/repositories/formulario_repository.dart';
 import '../../../data/services/storage_service.dart';
@@ -16,6 +17,9 @@ import '../../../data/models/formulario_trabajador_model.dart';
 import '../../../state/session_controller.dart';
 
 class WorkerApplicationViewModel extends ChangeNotifier {
+  static const Duration _uploadTimeout = Duration(seconds: 45);
+  static const Duration _submitTimeout = Duration(seconds: 30);
+
   final FormularioRepository _formularioRepository;
   final StorageService _storageService;
   final SessionController _sessionController;
@@ -119,6 +123,8 @@ class WorkerApplicationViewModel extends ChangeNotifier {
     double? latitud,
     double? longitud,
   }) async {
+    if (_isLoading) return false;
+
     _isLoading = true;
     _error = null;
     _enviado = false;
@@ -171,10 +177,15 @@ class WorkerApplicationViewModel extends ChangeNotifier {
       _uploadingFotoPerfil = true;
       notifyListeners();
       try {
-        fotoPerfilUrl = await _storageService.uploadFotoPerfilBytes(
-          userId: userId,
-          bytes: _fotoPerfilBytes!,
-          contentType: _fotoPerfilMime,
+        fotoPerfilUrl = await _withTimeout(
+          _storageService.uploadFotoPerfilBytes(
+            userId: userId,
+            bytes: _fotoPerfilBytes!,
+            contentType: _fotoPerfilMime,
+          ),
+          timeout: _uploadTimeout,
+          timeoutMessage:
+              'La subida de la foto de perfil tardó demasiado. Revisa tu conexión e inténtalo de nuevo.',
         );
       } finally {
         _uploadingFotoPerfil = false;
@@ -185,10 +196,15 @@ class WorkerApplicationViewModel extends ChangeNotifier {
       _uploadingDui = true;
       notifyListeners();
       try {
-        fotoDuiUrl = await _storageService.uploadFotoDuiBytes(
-          userId: userId,
-          bytes: _fotoDuiBytes!,
-          contentType: _fotoDuiMime,
+        fotoDuiUrl = await _withTimeout(
+          _storageService.uploadFotoDuiBytes(
+            userId: userId,
+            bytes: _fotoDuiBytes!,
+            contentType: _fotoDuiMime,
+          ),
+          timeout: _uploadTimeout,
+          timeoutMessage:
+              'La subida de la foto del DUI tardó demasiado. Revisa tu conexión e inténtalo de nuevo.',
         );
       } finally {
         _uploadingDui = false;
@@ -199,10 +215,15 @@ class WorkerApplicationViewModel extends ChangeNotifier {
       _uploadingAntecedentesPenales = true;
       notifyListeners();
       try {
-        antecedentesPenalesUrl = await _storageService.uploadAntecedentesBytes(
-          userId: userId,
-          bytes: _antecedentesPenalesBytes!,
-          contentType: _antecedentesPenalesMime,
+        antecedentesPenalesUrl = await _withTimeout(
+          _storageService.uploadAntecedentesBytes(
+            userId: userId,
+            bytes: _antecedentesPenalesBytes!,
+            contentType: _antecedentesPenalesMime,
+          ),
+          timeout: _uploadTimeout,
+          timeoutMessage:
+              'La subida de antecedentes penales tardó demasiado. Revisa tu conexión e inténtalo de nuevo.',
         );
       } finally {
         _uploadingAntecedentesPenales = false;
@@ -213,11 +234,15 @@ class WorkerApplicationViewModel extends ChangeNotifier {
       _uploadingAntecedentesPoliciales = true;
       notifyListeners();
       try {
-        antecedentesPolicialesUrl =
-            await _storageService.uploadAntecedentesPolicialesBytes(
-          userId: userId,
-          bytes: _antecedentesPolicialesBytes!,
-          contentType: _antecedentesPolicialesMime,
+        antecedentesPolicialesUrl = await _withTimeout(
+          _storageService.uploadAntecedentesPolicialesBytes(
+            userId: userId,
+            bytes: _antecedentesPolicialesBytes!,
+            contentType: _antecedentesPolicialesMime,
+          ),
+          timeout: _uploadTimeout,
+          timeoutMessage:
+              'La subida de antecedentes policiales tardó demasiado. Revisa tu conexión e inténtalo de nuevo.',
         );
       } finally {
         _uploadingAntecedentesPoliciales = false;
@@ -240,12 +265,22 @@ class WorkerApplicationViewModel extends ChangeNotifier {
         antecedentesPolicialesUrl: antecedentesPolicialesUrl,
       );
 
-      await _formularioRepository.submitFormulario(formulario);
-      await _sessionController.refreshPerfil();
+      await _withTimeout(
+        _formularioRepository.submitFormulario(formulario),
+        timeout: _submitTimeout,
+        timeoutMessage:
+            'El guardado de la solicitud tardó demasiado. Revisa tu conexión e inténtalo de nuevo.',
+      );
+      await _withTimeout(
+        _sessionController.refreshPerfil(),
+        timeout: _submitTimeout,
+        timeoutMessage:
+            'La solicitud se envió, pero no se pudo actualizar la sesión. Cierra sesión e inicia de nuevo si no ves el estado pendiente.',
+      );
       _enviado = true;
       return true;
     } catch (e) {
-      _error = e.toString().replaceFirst('Exception: ', '');
+      _error = _friendlyError(e);
       return false;
     } finally {
       _isLoading = false;
@@ -256,6 +291,39 @@ class WorkerApplicationViewModel extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  Future<T> _withTimeout<T>(
+    Future<T> future, {
+    required Duration timeout,
+    required String timeoutMessage,
+  }) {
+    return future.timeout(
+      timeout,
+      onTimeout: () => throw TimeoutException(timeoutMessage),
+    );
+  }
+
+  String _friendlyError(Object error) {
+    if (error is TimeoutException) {
+      return error.message ??
+          'La operación tardó demasiado. Revisa tu conexión e inténtalo de nuevo.';
+    }
+
+    final raw = error.toString().replaceFirst('Exception: ', '');
+    final lower = raw.toLowerCase();
+
+    if (lower.contains('row-level security') || lower.contains('rls')) {
+      return 'Supabase bloqueó el guardado por permisos. Revisa la política RLS de formulario_trabajador para permitir insertar al usuario autenticado.';
+    }
+    if (lower.contains('storage') || lower.contains('bucket')) {
+      return 'No se pudo subir uno de los documentos. Revisa permisos de Storage, buckets y conexión.';
+    }
+    if (lower.contains('duplicate') || lower.contains('already exists')) {
+      return 'Ya existe una solicitud con estos datos. Inicia sesión de nuevo para consultar su estado.';
+    }
+
+    return raw;
   }
 
   void reset() {

@@ -208,6 +208,15 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final vm = context.read<WorkerApplicationViewModel>();
+    if (_latitudCasa == null || _longitudCasa == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Registra la ubicación GPS de tu casa antes de enviar.'),
+        ),
+      );
+      return;
+    }
     final success = await vm.submitApplication(
       dui: _duiCtrl.text.trim(),
       direccion: _direccionCtrl.text.trim(),
