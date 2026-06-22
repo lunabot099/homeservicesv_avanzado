@@ -14,6 +14,7 @@ library;
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -57,6 +58,9 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
   final _direccionCtrl = TextEditingController();
 
   final _imagePicker = ImagePicker();
+  bool _obteniendoUbicacion = false;
+  double? _latitudCasa;
+  double? _longitudCasa;
 
   @override
   void dispose() {
@@ -152,14 +156,63 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
 
   // ── Envío del formulario ───────────────────────────────────────
 
+  Future<void> _usarGps() async {
+    setState(() => _obteniendoUbicacion = true);
+
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No se pudo obtener permiso de ubicación.'),
+          ),
+        );
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+
+      setState(() {
+        _latitudCasa = position.latitude;
+        _longitudCasa = position.longitude;
+      });
+
+      final coordenadas =
+          '${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)}';
+      final textoActual = _direccionCtrl.text.trim();
+      if (textoActual.isEmpty || textoActual.startsWith('GPS:')) {
+        _direccionCtrl.text = 'GPS: $coordenadas';
+      } else if (!textoActual.contains('GPS:')) {
+        _direccionCtrl.text = '$textoActual\nGPS: $coordenadas';
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo leer la ubicación GPS.')),
+      );
+    } finally {
+      if (mounted) setState(() => _obteniendoUbicacion = false);
+    }
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final vm = context.read<WorkerApplicationViewModel>();
     final success = await vm.submitApplication(
       dui: _duiCtrl.text.trim(),
-      direccion: _direccionCtrl.text.trim().isEmpty
-          ? null
-          : _direccionCtrl.text.trim(),
+      direccion: _direccionCtrl.text.trim(),
+      latitud: _latitudCasa,
+      longitud: _longitudCasa,
     );
     if (success && mounted) {
       context.go(RouteNames.workerPending);
@@ -222,13 +275,38 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  label: 'Dirección (opcional)',
-                  hint: 'Col. Escalón, San Salvador',
+                  label: 'Dirección de casa',
+                  hint: 'Escribe tu dirección completa',
                   controller: _direccionCtrl,
                   keyboardType: TextInputType.streetAddress,
                   prefixIcon: const Icon(Icons.location_on_outlined),
                   textInputAction: TextInputAction.done,
-                  maxLines: 2,
+                  maxLines: 3,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'La dirección de casa es obligatoria';
+                    }
+                    if (value.trim().length < 10) {
+                      return 'Escribe una dirección más completa';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: _obteniendoUbicacion ? null : _usarGps,
+                  icon: _obteniendoUbicacion
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.my_location_rounded),
+                  label: Text(
+                    _obteniendoUbicacion
+                        ? 'Obteniendo ubicación...'
+                        : 'Usar GPS de mi casa',
+                  ),
                 ),
 
                 const SizedBox(height: 28),

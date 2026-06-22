@@ -115,7 +115,9 @@ class WorkerApplicationViewModel extends ChangeNotifier {
   /// Nombre, correo y celular se toman del perfil autenticado (sin duplicar datos).
   Future<bool> submitApplication({
     required String dui,
-    String? direccion,
+    required String direccion,
+    double? latitud,
+    double? longitud,
   }) async {
     _isLoading = true;
     _error = null;
@@ -134,13 +136,19 @@ class WorkerApplicationViewModel extends ChangeNotifier {
 
       // Datos personales desde el perfil base — no se duplican
       final nombre = perfil?.nombreCompleto ?? '';
-      final correo = perfil?.correo ?? '';
+      final correo =
+          _sessionController.currentUser?.email ?? perfil?.correo ?? '';
       final celular = perfil?.telefono ?? '';
 
       String? fotoPerfilUrl;
       String? fotoDuiUrl;
       String? antecedentesPenalesUrl;
       String? antecedentesPolicialesUrl;
+
+      if (direccion.trim().isEmpty) {
+        _error = 'La dirección de casa es obligatoria.';
+        return false;
+      }
 
       if (_fotoPerfilBytes == null) {
         _error = 'La foto de perfil es obligatoria.';
@@ -218,11 +226,14 @@ class WorkerApplicationViewModel extends ChangeNotifier {
 
       // ── 4. Guardar formulario en Supabase ─────────────────────
       final formulario = FormularioTrabajadorModel(
+        userId: userId,
         nombreCompleto: nombre,
         correo: correo,
         celular: celular,
         dui: dui,
-        direccion: direccion,
+        direccion: direccion.trim(),
+        latitud: latitud,
+        longitud: longitud,
         fotoPerfilUrl: fotoPerfilUrl,
         fotoDuiUrl: fotoDuiUrl,
         antecedentespenalesUrl: antecedentesPenalesUrl,

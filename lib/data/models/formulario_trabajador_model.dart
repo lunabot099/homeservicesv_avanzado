@@ -22,11 +22,14 @@ enum EstadoFormulario {
 /// Mapea 1:1 con la tabla `formulario_trabajador` de Supabase.
 class FormularioTrabajadorModel {
   final String? id;
+  final String? userId;
   final String nombreCompleto;
   final String correo;
   final String celular;
   final String dui;
   final String? direccion;
+  final double? latitud;
+  final double? longitud;
   final String? fotoPerfilUrl;
   final String? fotoDuiUrl;
   final String? antecedentespenalesUrl;
@@ -38,11 +41,14 @@ class FormularioTrabajadorModel {
 
   const FormularioTrabajadorModel({
     this.id,
+    this.userId,
     required this.nombreCompleto,
     required this.correo,
     required this.celular,
     required this.dui,
     this.direccion,
+    this.latitud,
+    this.longitud,
     this.fotoPerfilUrl,
     this.fotoDuiUrl,
     this.antecedentespenalesUrl,
@@ -57,11 +63,14 @@ class FormularioTrabajadorModel {
   factory FormularioTrabajadorModel.fromMap(Map<String, dynamic> map) {
     return FormularioTrabajadorModel(
       id: map['id'] as String?,
+      userId: map['user_id'] as String?,
       nombreCompleto: map['nombre_completo'] as String? ?? '',
       correo: map['correo'] as String? ?? '',
       celular: map['celular'] as String? ?? '',
       dui: map['dui'] as String? ?? '',
       direccion: map['direccion'] as String?,
+      latitud: (map['latitud'] as num?)?.toDouble(),
+      longitud: (map['longitud'] as num?)?.toDouble(),
       fotoPerfilUrl: map['foto_perfil_url'] as String?,
       fotoDuiUrl: map['foto_dui_url'] as String?,
       antecedentespenalesUrl: map['antecedentes_penales_url'] as String?,
@@ -88,11 +97,14 @@ class FormularioTrabajadorModel {
   /// Convierte el modelo a mapa para insertar en Supabase.
   Map<String, dynamic> toMap() {
     return {
+      if (userId != null) 'user_id': userId,
       'nombre_completo': nombreCompleto,
       'correo': correo,
       'celular': celular,
       'dui': dui,
       if (direccion != null) 'direccion': direccion,
+      if (latitud != null) 'latitud': latitud,
+      if (longitud != null) 'longitud': longitud,
       if (fotoPerfilUrl != null) 'foto_perfil_url': fotoPerfilUrl,
       if (fotoDuiUrl != null) 'foto_dui_url': fotoDuiUrl,
       if (antecedentespenalesUrl != null)
@@ -107,11 +119,14 @@ class FormularioTrabajadorModel {
   /// Retorna una copia con los campos modificados.
   FormularioTrabajadorModel copyWith({
     String? id,
+    String? userId,
     String? nombreCompleto,
     String? correo,
     String? celular,
     String? dui,
     String? direccion,
+    double? latitud,
+    double? longitud,
     String? fotoPerfilUrl,
     String? fotoDuiUrl,
     String? antecedentespenalesUrl,
@@ -123,11 +138,14 @@ class FormularioTrabajadorModel {
   }) {
     return FormularioTrabajadorModel(
       id: id ?? this.id,
+      userId: userId ?? this.userId,
       nombreCompleto: nombreCompleto ?? this.nombreCompleto,
       correo: correo ?? this.correo,
       celular: celular ?? this.celular,
       dui: dui ?? this.dui,
       direccion: direccion ?? this.direccion,
+      latitud: latitud ?? this.latitud,
+      longitud: longitud ?? this.longitud,
       fotoPerfilUrl: fotoPerfilUrl ?? this.fotoPerfilUrl,
       fotoDuiUrl: fotoDuiUrl ?? this.fotoDuiUrl,
       antecedentespenalesUrl:

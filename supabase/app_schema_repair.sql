@@ -92,11 +92,14 @@ for each row execute function public.set_fecha_actualizacion();
 -- formulario_trabajador
 create table if not exists public.formulario_trabajador (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade,
   nombre_completo text not null default '',
   correo text not null,
   celular text not null default '',
   dui text not null,
   direccion text,
+  latitud double precision,
+  longitud double precision,
   foto_perfil_url text,
   foto_dui_url text,
   antecedentes_penales_url text,
@@ -108,11 +111,14 @@ create table if not exists public.formulario_trabajador (
 );
 
 alter table public.formulario_trabajador
+  add column if not exists user_id uuid references auth.users(id) on delete cascade,
   add column if not exists nombre_completo text not null default '',
   add column if not exists correo text not null default '',
   add column if not exists celular text not null default '',
   add column if not exists dui text not null default '',
   add column if not exists direccion text,
+  add column if not exists latitud double precision,
+  add column if not exists longitud double precision,
   add column if not exists foto_perfil_url text,
   add column if not exists foto_dui_url text,
   add column if not exists antecedentes_penales_url text,
@@ -123,6 +129,7 @@ alter table public.formulario_trabajador
   add column if not exists fecha_actualizacion timestamptz not null default now();
 
 create index if not exists formulario_trabajador_correo_idx on public.formulario_trabajador(correo);
+create index if not exists formulario_trabajador_user_id_idx on public.formulario_trabajador(user_id);
 
 drop trigger if exists formulario_trabajador_set_fecha_actualizacion on public.formulario_trabajador;
 create trigger formulario_trabajador_set_fecha_actualizacion
@@ -319,9 +326,9 @@ drop policy if exists worker_profiles_update_own on public.worker_profiles;
 create policy worker_profiles_update_own on public.worker_profiles for update to authenticated using (id = auth.uid()) with check (id = auth.uid());
 
 drop policy if exists formulario_insert_authenticated on public.formulario_trabajador;
-create policy formulario_insert_authenticated on public.formulario_trabajador for insert to authenticated with check (correo = coalesce(auth.jwt() ->> 'email', correo));
+create policy formulario_insert_authenticated on public.formulario_trabajador for insert to authenticated with check (user_id = auth.uid() and lower(correo) = lower(coalesce(auth.jwt() ->> 'email', correo)));
 drop policy if exists formulario_select_own on public.formulario_trabajador;
-create policy formulario_select_own on public.formulario_trabajador for select to authenticated using (correo = auth.jwt() ->> 'email');
+create policy formulario_select_own on public.formulario_trabajador for select to authenticated using (user_id = auth.uid() or lower(correo) = lower(auth.jwt() ->> 'email'));
 
 drop policy if exists solicitudes_insert_own on public.solicitudes_servicio;
 create policy solicitudes_insert_own on public.solicitudes_servicio for insert to authenticated with check (cliente_id = auth.uid());
