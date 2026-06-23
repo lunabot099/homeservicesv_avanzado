@@ -1,0 +1,52 @@
+name: Deploy Flutter Web to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Create production env file
+        run: |
+          {
+            echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}"
+            echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}"
+            echo "BUCKET_PERFIL_FOTOS=perfil-fotos"
+            echo "BUCKET_DUI_DOCUMENTOS=dui-documentos"
+            echo "BUCKET_ANTECEDENTES_DOCUMENTOS=antecedentes-documentos"
+            echo "BUCKET_SOLICITUDES_IMAGENES=solicitudes-imagenes"
+            echo "BUCKET_CHAT_IMAGENES=chat-imagenes"
+          } > .env
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Build web
+        run: flutter build web --release --base-href /homeservicesv_avanzado/
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./build/web
+          force_orphan: true
