@@ -187,14 +187,10 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
         _longitudCasa = position.longitude;
       });
 
-      final coordenadas =
-          '${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)}';
-      final textoActual = _direccionCtrl.text.trim();
-      if (textoActual.isEmpty || textoActual.startsWith('GPS:')) {
-        _direccionCtrl.text = 'GPS: $coordenadas';
-      } else if (!textoActual.contains('GPS:')) {
-        _direccionCtrl.text = '$textoActual\nGPS: $coordenadas';
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ubicación GPS registrada.')),
+      );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -317,6 +313,13 @@ class _WorkerApplicationContentState extends State<_WorkerApplicationContent> {
                         : 'Usar GPS de mi casa',
                   ),
                 ),
+                if (_latitudCasa != null && _longitudCasa != null) ...[
+                  const SizedBox(height: 10),
+                  _GpsReadOnlyBox(
+                    latitud: _latitudCasa!,
+                    longitud: _longitudCasa!,
+                  ),
+                ],
 
                 const SizedBox(height: 28),
 
@@ -519,6 +522,46 @@ class _ReadOnlyRow extends StatelessWidget {
           color: AppColors.grey400,
         ),
       ],
+    );
+  }
+}
+
+class _GpsReadOnlyBox extends StatelessWidget {
+  final double latitud;
+  final double longitud;
+
+  const _GpsReadOnlyBox({
+    required this.latitud,
+    required this.longitud,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.infoLight,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(color: AppColors.info.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.gps_fixed_rounded, color: AppColors.info, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'GPS registrado: ${latitud.toStringAsFixed(6)}, ${longitud.toStringAsFixed(6)}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.info,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ),
+          const Icon(Icons.lock_outline_rounded,
+              size: 14, color: AppColors.info),
+        ],
+      ),
     );
   }
 }

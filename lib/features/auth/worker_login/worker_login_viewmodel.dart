@@ -13,8 +13,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfiles_repository.dart';
 import '../../../data/repositories/formulario_repository.dart';
+import '../../../data/repositories/workers_repository.dart';
 import '../../../data/models/perfil_model.dart';
 import '../../../data/models/formulario_trabajador_model.dart';
+import '../../../data/models/worker_profile_model.dart';
 import '../../../state/session_controller.dart';
 
 /// Resultado de la acción de login del trabajador.
@@ -33,6 +35,7 @@ class WorkerLoginViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
   final PerfilesRepository _perfilesRepository;
   final FormularioRepository _formularioRepository;
+  final WorkersRepository _workersRepository;
   final SessionController _sessionController;
 
   bool _isLoading = false;
@@ -42,10 +45,12 @@ class WorkerLoginViewModel extends ChangeNotifier {
     AuthRepository? authRepository,
     PerfilesRepository? perfilesRepository,
     FormularioRepository? formularioRepository,
+    WorkersRepository? workersRepository,
     required SessionController sessionController,
   })  : _authRepository = authRepository ?? AuthRepository(),
         _perfilesRepository = perfilesRepository ?? PerfilesRepository(),
         _formularioRepository = formularioRepository ?? FormularioRepository(),
+        _workersRepository = workersRepository ?? WorkersRepository(),
         _sessionController = sessionController;
 
   bool get isLoading => _isLoading;
@@ -83,9 +88,8 @@ class WorkerLoginViewModel extends ChangeNotifier {
       await _sessionController.refreshPerfil();
 
       // 4. Consultar formulario para evaluar estado
-      final formulario = await _formularioRepository
-          .getFormularioByCorreo(email)
-          .catchError((_) => null);
+      final formulario =
+          await _getFormularioTrabajador(userId: user.id, correo: email);
 
       if (formulario == null) {
         // Sin formulario → ir a completarlo
@@ -93,7 +97,17 @@ class WorkerLoginViewModel extends ChangeNotifier {
       }
 
       if (formulario.estado == EstadoFormulario.aprobado) {
-        return WorkerLoginResult.goHome;
+        final workerProfile = await _workersRepository
+            .getWorkerById(user.id)
+            .catchError((_) => null);
+
+        final hasActiveWorkerProfile =
+            workerProfile?.estadoVerificacion == EstadoVerificacion.aprobado &&
+                (workerProfile?.verificado ?? false);
+
+        return hasActiveWorkerProfile
+            ? WorkerLoginResult.goHome
+            : WorkerLoginResult.goPending;
       }
 
       // pendiente / en_revision / rechazado → pantalla de espera
@@ -105,6 +119,20 @@ class WorkerLoginViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<FormularioTrabajadorModel?> _getFormularioTrabajador({
+    required String userId,
+    required String correo,
+  }) async {
+    final byUserId = await _formularioRepository
+        .getFormularioByUserId(userId)
+        .catchError((_) => null);
+    if (byUserId != null) return byUserId;
+
+    return _formularioRepository
+        .getFormularioByCorreo(correo)
+        .catchError((_) => null);
   }
 
   Future<PerfilModel> _ensurePerfilTrabajador(User user, String email) async {

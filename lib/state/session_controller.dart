@@ -8,18 +8,22 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/models/perfil_model.dart';
 import '../data/models/formulario_trabajador_model.dart';
+import '../data/models/worker_profile_model.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/formulario_repository.dart';
 import '../data/repositories/perfiles_repository.dart';
+import '../data/repositories/workers_repository.dart';
 
 class SessionController extends ChangeNotifier {
   final AuthRepository _authRepository;
   final PerfilesRepository _perfilesRepository;
   final FormularioRepository _formularioRepository;
+  final WorkersRepository _workersRepository;
 
   User? _currentUser;
   PerfilModel? _currentPerfil;
   FormularioTrabajadorModel? _currentWorkerApplication;
+  WorkerProfileModel? _currentWorkerProfile;
   bool _isLoading = false;
   String? _error;
 
@@ -27,9 +31,11 @@ class SessionController extends ChangeNotifier {
     AuthRepository? authRepository,
     PerfilesRepository? perfilesRepository,
     FormularioRepository? formularioRepository,
+    WorkersRepository? workersRepository,
   })  : _authRepository = authRepository ?? AuthRepository(),
         _perfilesRepository = perfilesRepository ?? PerfilesRepository(),
-        _formularioRepository = formularioRepository ?? FormularioRepository() {
+        _formularioRepository = formularioRepository ?? FormularioRepository(),
+        _workersRepository = workersRepository ?? WorkersRepository() {
     // Escuchar cambios de autenticación automáticamente
     _authRepository.authStateChanges.listen(_onAuthStateChanged);
     // Cargar sesión inicial si ya hay usuario
@@ -41,6 +47,7 @@ class SessionController extends ChangeNotifier {
   PerfilModel? get currentPerfil => _currentPerfil;
   FormularioTrabajadorModel? get currentWorkerApplication =>
       _currentWorkerApplication;
+  WorkerProfileModel? get currentWorkerProfile => _currentWorkerProfile;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isAuthenticated => _currentUser != null;
@@ -49,7 +56,10 @@ class SessionController extends ChangeNotifier {
   bool get hasApprovedWorkerAccess =>
       isWorker &&
       _currentWorkerApplication?.estado == EstadoFormulario.aprobado &&
-      (_currentWorkerApplication?.hasRequiredDocuments ?? false);
+      (_currentWorkerApplication?.hasRequiredDocuments ?? false) &&
+      _currentWorkerProfile?.estadoVerificacion ==
+          EstadoVerificacion.aprobado &&
+      (_currentWorkerProfile?.verificado ?? false);
 
   // ── Inicialización ───────────────────────────────────────────
   Future<void> _initSession() async {
@@ -72,6 +82,7 @@ class SessionController extends ChangeNotifier {
       _currentUser = null;
       _currentPerfil = null;
       _currentWorkerApplication = null;
+      _currentWorkerProfile = null;
     }
     notifyListeners();
   }
@@ -85,6 +96,7 @@ class SessionController extends ChangeNotifier {
       // El perfil puede no existir todavía (usuario recién registrado)
       _currentPerfil = null;
       _currentWorkerApplication = null;
+      _currentWorkerProfile = null;
     }
     notifyListeners();
   }
@@ -93,16 +105,35 @@ class SessionController extends ChangeNotifier {
     final perfil = _currentPerfil;
     if (perfil == null || perfil.rol != UserRole.trabajador) {
       _currentWorkerApplication = null;
+      _currentWorkerProfile = null;
       return;
     }
 
+    final previousApplication = _currentWorkerApplication;
     try {
-      _currentWorkerApplication = await _formularioRepository
+      FormularioTrabajadorModel? application;
+      final userId = _currentUser?.id;
+      if (userId != null) {
+        application = await _formularioRepository
+            .getFormularioByUserId(userId)
+            .catchError((_) => null);
+      }
+
+      application ??= await _formularioRepository
           .getFormularioByCorreo(perfil.correo)
           .catchError((_) => null);
+      _currentWorkerApplication = application ?? previousApplication;
+      _currentWorkerProfile =
+          await _loadWorkerProfile().catchError((_) => null);
     } catch (_) {
-      _currentWorkerApplication = null;
+      _currentWorkerApplication = previousApplication;
     }
+  }
+
+  Future<WorkerProfileModel?> _loadWorkerProfile() async {
+    final userId = _currentUser?.id;
+    if (userId == null) return null;
+    return _workersRepository.getWorkerById(userId);
   }
 
   // ── Acciones públicas ────────────────────────────────────────
@@ -111,6 +142,12 @@ class SessionController extends ChangeNotifier {
   Future<void> refreshPerfil() async {
     if (_currentUser == null) return;
     await _loadPerfil(_currentUser!.id);
+  }
+
+  /// Marca en memoria que el trabajador ya envió su solicitud.
+  void setCurrentWorkerApplication(FormularioTrabajadorModel application) {
+    _currentWorkerApplication = application;
+    notifyListeners();
   }
 
   /// Cierra la sesión del usuario.
@@ -124,6 +161,7 @@ class SessionController extends ChangeNotifier {
       _currentUser = null;
       _currentPerfil = null;
       _currentWorkerApplication = null;
+      _currentWorkerProfile = null;
     } catch (e) {
       _error = e.toString();
     } finally {

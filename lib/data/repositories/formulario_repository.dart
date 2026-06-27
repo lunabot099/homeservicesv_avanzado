@@ -23,8 +23,19 @@ class FormularioRepository {
     }
   }
 
+  /// Consulta el estado de un formulario por user_id de Auth.
+  Future<FormularioTrabajadorModel?> getFormularioByUserId(
+      String userId) async {
+    try {
+      return await _service.getFormularioByUserId(userId);
+    } catch (e) {
+      throw Exception('No se pudo consultar el formulario: ${e.toString()}');
+    }
+  }
+
   /// Consulta el estado de un formulario por correo.
-  Future<FormularioTrabajadorModel?> getFormularioByCorreo(String correo) async {
+  Future<FormularioTrabajadorModel?> getFormularioByCorreo(
+      String correo) async {
     try {
       return await _service.getFormularioByCorreo(correo);
     } catch (e) {
