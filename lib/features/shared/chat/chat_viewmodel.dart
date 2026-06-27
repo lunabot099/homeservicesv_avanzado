@@ -56,9 +56,12 @@ class ChatViewModel extends ChangeNotifier {
         clienteId: clienteId,
         trabajadorId: trabajadorId,
       );
+      _mensajes = await _chatsRepo.getMensajes(_chat!.id!);
+      _error = null;
       _suscribirMensajes(_chat!.id!);
     } catch (e) {
-      _error = 'No se pudo abrir el chat: ${e.toString().replaceFirst('Exception: ', '')}';
+      _error =
+          'No se pudo abrir el chat: ${e.toString().replaceFirst('Exception: ', '')}';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -76,13 +79,16 @@ class ChatViewModel extends ChangeNotifier {
         return;
       }
 
+      _mensajes = await _chatsRepo.getMensajes(chatId);
+      _error = null;
       _suscribirMensajes(chatId);
       if (usuarioActualId != null) {
         await _chatsRepo.marcarLeidos(
             chatId: chatId, usuarioId: usuarioActualId!);
       }
     } catch (e) {
-      _error = 'Error al cargar el chat: ${e.toString().replaceFirst('Exception: ', '')}';
+      _error =
+          'Error al cargar el chat: ${e.toString().replaceFirst('Exception: ', '')}';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -104,18 +110,25 @@ class ChatViewModel extends ChangeNotifier {
 
   /// Envía un mensaje de texto.
   Future<void> enviarTexto(String texto) async {
-    if (texto.trim().isEmpty || _chat == null || usuarioActualId == null) return;
+    if (texto.trim().isEmpty || _chat == null || usuarioActualId == null) {
+      return;
+    }
 
     _isSending = true;
     notifyListeners();
     try {
-      await _chatsRepo.enviarTexto(
+      final enviado = await _chatsRepo.enviarTexto(
         chatId: _chat!.id!,
         remitenteId: usuarioActualId!,
         texto: texto.trim(),
       );
-    } catch (_) {
-      // Optimistic UI — el mensaje ya se muestra vía Realtime
+      if (enviado.id == null || !_mensajes.any((m) => m.id == enviado.id)) {
+        _mensajes = [..._mensajes, enviado];
+      }
+      _error = null;
+    } catch (e) {
+      final message = e.toString().replaceFirst("Exception: ", "");
+      _error = "No se pudo enviar el mensaje: $message";
     } finally {
       _isSending = false;
       notifyListeners();

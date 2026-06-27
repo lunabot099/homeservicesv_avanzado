@@ -44,7 +44,6 @@ import '../../features/worker/messages/worker_messages_view.dart';
 import '../../features/shared/chat/chat_view.dart';
 import '../../data/models/solicitud_servicio_model.dart';
 import '../../data/models/postulacion_solicitud_model.dart';
-import '../../data/models/formulario_trabajador_model.dart';
 import '../../data/models/perfil_model.dart';
 import 'route_names.dart';
 
@@ -94,10 +93,7 @@ class AppRouter {
           }
 
           if (!session.hasApprovedWorkerAccess) {
-            final hasRequiredDocuments =
-                session.currentWorkerApplication?.hasRequiredDocuments ?? false;
-            return session.currentWorkerApplication == null ||
-                    !hasRequiredDocuments
+            return session.currentWorkerApplication == null
                 ? RouteNames.workerApplication
                 : RouteNames.workerPending;
           }
@@ -114,15 +110,11 @@ class AppRouter {
 
           final applicationStatus = session.currentWorkerApplication?.estado;
           if (currentPath == RouteNames.workerApplication &&
-              applicationStatus != null &&
-              (session.currentWorkerApplication?.hasRequiredDocuments ??
-                  false)) {
+              applicationStatus != null) {
             return RouteNames.workerPending;
           }
           if (currentPath == RouteNames.workerPending &&
-              (applicationStatus == null ||
-                  !(session.currentWorkerApplication?.hasRequiredDocuments ??
-                      false))) {
+              applicationStatus == null) {
             return RouteNames.workerApplication;
           }
         }
@@ -136,15 +128,9 @@ class AppRouter {
 
               final applicationStatus =
                   session.currentWorkerApplication?.estado;
-              final hasRequiredDocuments =
-                  session.currentWorkerApplication?.hasRequiredDocuments ??
-                      false;
-              return applicationStatus == EstadoFormulario.aprobado &&
-                      hasRequiredDocuments
-                  ? RouteNames.workerHome
-                  : applicationStatus == null || !hasRequiredDocuments
-                      ? RouteNames.workerApplication
-                      : RouteNames.workerPending;
+              return applicationStatus == null
+                  ? RouteNames.workerApplication
+                  : RouteNames.workerPending;
             }
             return RouteNames.clientHome;
           }
@@ -398,11 +384,9 @@ class AppRouter {
           builder: (context, state) {
             final chatId = state.pathParameters['chatId']!;
             final extra = state.extra as Map<String, dynamic>?;
-            // Si extra tiene args de solicitud, inicializar el chat desde cero;
-            // si solo hay chatId, abrimos por ID.
-            if (extra != null &&
-                extra.containsKey('solicitudId') &&
-                chatId == 'new') {
+            // Si viene una solicitud, abrir/crear el chat asociado a esa solicitud.
+            // Algunas pantallas antiguas envian solicitudId en la URL en lugar de chatId.
+            if (extra != null && extra.containsKey('solicitudId')) {
               return ChatView(
                 args: ChatArgs.fromMap(extra),
               );
@@ -420,9 +404,7 @@ class AppRouter {
           builder: (context, state) {
             final chatId = state.pathParameters['chatId']!;
             final extra = state.extra as Map<String, dynamic>?;
-            if (extra != null &&
-                extra.containsKey('solicitudId') &&
-                chatId == 'new') {
+            if (extra != null && extra.containsKey('solicitudId')) {
               return ChatView(
                 args: ChatArgs.fromMap(extra),
               );
