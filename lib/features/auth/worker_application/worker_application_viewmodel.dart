@@ -265,24 +265,12 @@ class WorkerApplicationViewModel extends ChangeNotifier {
         antecedentesPolicialesUrl: antecedentesPolicialesUrl,
       );
 
-<<<<<<< Updated upstream
-      await _withTimeout(
-=======
       final formularioGuardado = await _withTimeout(
->>>>>>> Stashed changes
         _formularioRepository.submitFormulario(formulario),
         timeout: _submitTimeout,
         timeoutMessage:
             'El guardado de la solicitud tardó demasiado. Revisa tu conexión e inténtalo de nuevo.',
       );
-<<<<<<< Updated upstream
-      await _withTimeout(
-        _sessionController.refreshPerfil(),
-        timeout: _submitTimeout,
-        timeoutMessage:
-            'La solicitud se envió, pero no se pudo actualizar la sesión. Cierra sesión e inicia de nuevo si no ves el estado pendiente.',
-      );
-=======
       _sessionController.setCurrentWorkerApplication(formularioGuardado);
 
       try {
@@ -297,7 +285,6 @@ class WorkerApplicationViewModel extends ChangeNotifier {
         // depender de una recarga de sesión que puede fallar por red o RLS.
       }
 
->>>>>>> Stashed changes
       _enviado = true;
       return true;
     } catch (e) {
