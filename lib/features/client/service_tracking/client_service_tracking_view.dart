@@ -46,6 +46,12 @@ class _ClientServiceTrackingViewState extends State<ClientServiceTrackingView> {
   }
 
   @override
+  void dispose() {
+    _vm.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _vm,

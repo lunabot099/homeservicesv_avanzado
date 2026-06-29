@@ -2,6 +2,8 @@
 /// ViewModel del seguimiento del servicio en curso.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import '../../../data/models/solicitud_servicio_model.dart';
 import '../../../data/models/postulacion_solicitud_model.dart';
@@ -18,6 +20,8 @@ class ClientServiceTrackingViewModel extends ChangeNotifier {
   bool _showReportSheet = false;
   bool _isLoading = false;
   String? _error;
+  StreamSubscription<SolicitudServicioModel?>? _solicitudSubscription;
+  Timer? _pollingTimer;
 
   ClientServiceTrackingViewModel({
     SolicitudesRepository? solicitudesRepo,
@@ -39,6 +43,7 @@ class ClientServiceTrackingViewModel extends ChangeNotifier {
   }) {
     _solicitud = solicitud;
     _trabajador = trabajador;
+    _suscribirSolicitud(solicitud.id);
     notifyListeners();
   }
 
@@ -52,20 +57,11 @@ class ClientServiceTrackingViewModel extends ChangeNotifier {
     try {
       final solicitud = await _solicitudesRepo.getSolicitudById(solicitudId);
       _solicitud = solicitud;
+      _suscribirSolicitud(solicitudId);
 
       final trabajadorId = solicitud?.trabajadorId;
       if (trabajadorId != null && trabajadorId.isNotEmpty) {
-        final perfil = await _perfilesRepo.getPerfilById(trabajadorId);
-        if (perfil != null) {
-          _trabajador = WorkerCatalogItemModel(
-            trabajadorId: perfil.id,
-            nombre: perfil.nombreCompleto,
-            fotoUrl: perfil.fotoPerfilUrl,
-            calificacion: perfil.promedioCalificacion ?? 0,
-            cantidadResenas: perfil.cantidadResenas ?? 0,
-            verificado: true,
-          );
-        }
+        await _cargarTrabajador(trabajadorId);
       }
     } catch (e) {
       _error = 'No se pudo cargar el seguimiento del servicio.';
@@ -86,8 +82,71 @@ class ClientServiceTrackingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Actualiza el estado del servicio.
-  /// TODO: Suscribirse a Supabase Realtime en lugar de polling.
+  void _suscribirSolicitud(String? solicitudId) {
+    _solicitudSubscription?.cancel();
+    _pollingTimer?.cancel();
+    if (solicitudId == null || solicitudId.isEmpty) return;
+
+    _solicitudSubscription = _solicitudesRepo
+        .streamSolicitud(solicitudId)
+        .listen((actualizada) async {
+      if (actualizada == null) return;
+
+      _solicitud = actualizada;
+      final trabajadorId = actualizada.trabajadorId;
+      if (trabajadorId != null &&
+          trabajadorId.isNotEmpty &&
+          _trabajador?.trabajadorId != trabajadorId) {
+        await _cargarTrabajador(trabajadorId);
+      }
+      notifyListeners();
+    }, onError: (e) {
+      debugPrint('[ClientTrackingVM] Error Realtime seguimiento: $e');
+    });
+
+    _pollingTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      _refrescarSolicitud(solicitudId);
+    });
+  }
+
+  Future<void> _refrescarSolicitud(String solicitudId) async {
+    try {
+      final actualizada = await _solicitudesRepo.getSolicitudById(solicitudId);
+      if (actualizada == null || _solicitud?.estado == actualizada.estado) {
+        return;
+      }
+
+      _solicitud = actualizada;
+      final trabajadorId = actualizada.trabajadorId;
+      if (trabajadorId != null &&
+          trabajadorId.isNotEmpty &&
+          _trabajador?.trabajadorId != trabajadorId) {
+        await _cargarTrabajador(trabajadorId);
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[ClientTrackingVM] Error refrescando seguimiento: $e');
+    }
+  }
+
+  Future<void> _cargarTrabajador(String trabajadorId) async {
+    try {
+      final perfil = await _perfilesRepo.getPerfilById(trabajadorId);
+      if (perfil == null) return;
+      _trabajador = WorkerCatalogItemModel(
+        trabajadorId: perfil.id,
+        nombre: perfil.nombreCompleto,
+        fotoUrl: perfil.fotoPerfilUrl,
+        calificacion: perfil.promedioCalificacion ?? 0,
+        cantidadResenas: perfil.cantidadResenas ?? 0,
+        verificado: true,
+      );
+    } catch (e) {
+      debugPrint('[ClientTrackingVM] Error al cargar trabajador: $e');
+    }
+  }
+
+  /// Actualiza el estado del servicio localmente mientras llega Realtime.
   void updateEstado(EstadoSolicitud nuevoEstado) {
     if (_solicitud == null) return;
     _solicitud = _solicitud!.copyWith(estado: nuevoEstado);
@@ -136,5 +195,12 @@ class ClientServiceTrackingViewModel extends ChangeNotifier {
     _showReportSheet = false;
     notifyListeners();
     return true;
+  }
+
+  @override
+  void dispose() {
+    _solicitudSubscription?.cancel();
+    _pollingTimer?.cancel();
+    super.dispose();
   }
 }
