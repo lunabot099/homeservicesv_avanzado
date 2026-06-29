@@ -157,13 +157,23 @@ class SolicitudesService {
   Stream<List<SolicitudServicioModel>> streamSolicitudesDisponibles({
     String? departamento,
   }) {
-    var stream = _client.from(_table).stream(primaryKey: ['id']).eq(
-        'estado', EstadoSolicitud.en_busqueda.name);
+    final estadosDisponibles = {
+      EstadoSolicitud.en_busqueda,
+      EstadoSolicitud.postulaciones_recibidas,
+    };
 
-    return stream.map((rows) => rows
+    return _client.from(_table).stream(primaryKey: ['id']).map((rows) => rows
         .map((e) => SolicitudServicioModel.fromMap(e))
+        .where((s) => estadosDisponibles.contains(s.estado))
         .where((s) => departamento == null || s.departamento == departamento)
-        .toList());
+        .toList()
+      ..sort((a, b) {
+        final fechaA =
+            a.fechaCreacion ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final fechaB =
+            b.fechaCreacion ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return fechaB.compareTo(fechaA);
+      }));
   }
 
   // ── Expiración automática ─────────────────────────────────────

@@ -48,27 +48,23 @@ class _ApplicationsContent extends StatelessWidget {
               ? const Center(child: CircularProgressIndicator())
               : vm.items.isEmpty
                   ? Center(
-                      child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.assignment_outlined,
-                                size: 64, color: AppColors.grey300),
-                            const SizedBox(height: 16),
-                            Text('No tienes postulaciones aún',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                        color: AppColors.textSecondary)),
-                          ]),
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        const Icon(Icons.assignment_outlined,
+                            size: 64, color: AppColors.grey300),
+                        const SizedBox(height: 16),
+                        Text('No tienes postulaciones aún',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: AppColors.textSecondary)),
+                      ]),
                     )
                   : RefreshIndicator(
                       onRefresh: vm.loadPostulaciones,
                       child: ListView.separated(
                         padding: const EdgeInsets.all(AppTheme.paddingLg),
                         itemCount: vm.items.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: 12),
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
                         itemBuilder: (context, i) {
                           final item = vm.items[i];
                           return _ApplicationCard(
@@ -88,8 +84,7 @@ class _ApplicationsContent extends StatelessWidget {
                                 extra: {
                                   'solicitudId': item.postulacion.solicitudId,
                                   'clienteId': item.solicitud!.clienteId,
-                                  'trabajadorId':
-                                      item.postulacion.trabajadorId,
+                                  'trabajadorId': item.postulacion.trabajadorId,
                                 },
                               );
                             },
@@ -142,7 +137,8 @@ class _FilterChips extends StatelessWidget {
                 selectedColor: AppColors.workerRole.withValues(alpha: 0.15),
                 checkmarkColor: AppColors.workerRole,
                 labelStyle: TextStyle(
-                  color: selected ? AppColors.workerRole : AppColors.textPrimary,
+                  color:
+                      selected ? AppColors.workerRole : AppColors.textPrimary,
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
@@ -247,14 +243,11 @@ class _ApplicationCard extends StatelessWidget {
                   ]),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: _estadoColor.withValues(alpha: 0.1),
-                borderRadius:
-                    BorderRadius.circular(AppTheme.radiusFull),
-                border:
-                    Border.all(color: _estadoColor.withValues(alpha: 0.4)),
+                borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                border: Border.all(color: _estadoColor.withValues(alpha: 0.4)),
               ),
               child: Text(_estadoLabel,
                   style: TextStyle(
@@ -270,14 +263,12 @@ class _ApplicationCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(children: [
             _ActionBtn(
-                icon: Icons.visibility_outlined,
-                label: 'Ver',
-                onTap: onTap),
-            const SizedBox(width: 8),
-            _ActionBtn(
-                icon: Icons.chat_outlined,
-                label: 'Chat',
-                onTap: onChat),
+                icon: Icons.visibility_outlined, label: 'Ver', onTap: onTap),
+            if (item.postulacion.estado == EstadoPostulacion.aceptada) ...[
+              const SizedBox(width: 8),
+              _ActionBtn(
+                  icon: Icons.chat_outlined, label: 'Chat', onTap: onChat),
+            ],
             const SizedBox(width: 8),
             if (item.postulacion.estado == EstadoPostulacion.aceptada)
               _ActionBtn(

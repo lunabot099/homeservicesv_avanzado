@@ -12,7 +12,7 @@ class WorkerServiceTrackingViewModel extends ChangeNotifier {
   final SolicitudesRepository _solicitudesRepo;
 
   SolicitudServicioModel? _solicitud;
-  bool _isLoading = false;
+  final bool _isLoading = false;
   bool _isUpdating = false;
   String? _error;
   StreamSubscription<SolicitudServicioModel?>? _estadoSubscription;
@@ -21,7 +21,7 @@ class WorkerServiceTrackingViewModel extends ChangeNotifier {
     SolicitudesRepository? solicitudesRepo,
     // sessionController se acepta por compatibilidad con la vista pero no se usa todavía
     required SessionController sessionController,
-  })  : _solicitudesRepo = solicitudesRepo ?? SolicitudesRepository();
+  }) : _solicitudesRepo = solicitudesRepo ?? SolicitudesRepository();
 
   SolicitudServicioModel? get solicitud => _solicitud;
   EstadoSolicitud? get estadoActual => _solicitud?.estado;

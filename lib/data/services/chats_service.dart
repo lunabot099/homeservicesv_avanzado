@@ -33,11 +33,15 @@ class ChatsService {
     }
 
     // Crear nuevo chat
-    final data = await _client.from(_table).insert({
-      'solicitud_id': solicitudId,
-      'cliente_id': clienteId,
-      'trabajador_id': trabajadorId,
-    }).select().single();
+    final data = await _client
+        .from(_table)
+        .insert({
+          'solicitud_id': solicitudId,
+          'cliente_id': clienteId,
+          'trabajador_id': trabajadorId,
+        })
+        .select()
+        .single();
 
     return ChatModel.fromMap(data);
   }
@@ -54,11 +58,8 @@ class ChatsService {
 
   /// Obtiene un chat por su ID.
   Future<ChatModel?> getById(String chatId) async {
-    final data = await _client
-        .from(_table)
-        .select()
-        .eq('id', chatId)
-        .maybeSingle();
+    final data =
+        await _client.from(_table).select().eq('id', chatId).maybeSingle();
     return data != null ? ChatModel.fromMap(data) : null;
   }
 
@@ -75,13 +76,18 @@ class ChatsService {
         .toList();
   }
 
+  /// Elimina el chat completo de una solicitud.
+  Future<void> eliminarPorSolicitud(String solicitudId) async {
+    await _client.from(_table).delete().eq('solicitud_id', solicitudId);
+  }
+
   /// Marca la fecha de expiración de mensajes (7 días desde ahora).
   /// Se llama cuando el servicio se marca como completado.
   Future<void> programarEliminacion(String chatId) async {
     final expiracion = DateTime.now().add(const Duration(days: 7));
     await _client
         .from(_table)
-        .update({'eliminar_mensajes_en': expiracion.toIso8601String()})
-        .eq('id', chatId);
+        .update({'eliminar_mensajes_en': expiracion.toIso8601String()}).eq(
+            'id', chatId);
   }
 }

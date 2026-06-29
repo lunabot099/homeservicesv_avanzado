@@ -243,6 +243,7 @@ class AppRouter {
           builder: (context, state) {
             final extra = state.extra as Map<String, dynamic>?;
             return ClientServiceTrackingView(
+              solicitudId: state.pathParameters['solicitudId'],
               solicitud: extra?['solicitud'] as SolicitudServicioModel?,
               trabajador: extra?['trabajador'] as WorkerCatalogItemModel?,
             );

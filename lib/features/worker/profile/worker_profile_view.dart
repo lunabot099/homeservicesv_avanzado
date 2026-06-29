@@ -94,12 +94,14 @@ class _WorkerProfileContentState extends State<_WorkerProfileContent> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          _mostrarSnack('Permiso de ubicación denegado. Selecciona manualmente en el mapa.');
+          _mostrarSnack(
+              'Permiso de ubicación denegado. Selecciona manualmente en el mapa.');
           return;
         }
       }
       if (permission == LocationPermission.deniedForever) {
-        _mostrarSnack('Permiso bloqueado permanentemente. Habilítalo en configuración.');
+        _mostrarSnack(
+            'Permiso bloqueado permanentemente. Habilítalo en configuración.');
         return;
       }
 
@@ -151,8 +153,8 @@ class _WorkerProfileContentState extends State<_WorkerProfileContent> {
               await context.read<SessionController>().signOut();
               if (context.mounted) context.go(RouteNames.roleSelector);
             },
-            child: const Text('Salir',
-                style: TextStyle(color: AppColors.error)),
+            child:
+                const Text('Salir', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -181,7 +183,8 @@ class _WorkerProfileContentState extends State<_WorkerProfileContent> {
                     onChanged: vm.setDescripcion,
                     maxLines: 3,
                     decoration: const InputDecoration(
-                      hintText: 'Cuéntale a tus clientes sobre tu experiencia...',
+                      hintText:
+                          'Cuéntale a tus clientes sobre tu experiencia...',
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -453,8 +456,7 @@ class _MapaCobertura extends StatelessWidget {
               children: [
                 // Capa de tiles OpenStreetMap
                 TileLayer(
-                  urlTemplate:
-                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.homeservicesv.app',
                 ),
 
@@ -467,7 +469,8 @@ class _MapaCobertura extends StatelessWidget {
                         radius: 6000, // 6 km en metros
                         useRadiusInMeter: true,
                         color: AppColors.workerRole.withValues(alpha: 0.15),
-                        borderColor: AppColors.workerRole.withValues(alpha: 0.6),
+                        borderColor:
+                            AppColors.workerRole.withValues(alpha: 0.6),
                         borderStrokeWidth: 2,
                       ),
                     ],
@@ -588,9 +591,11 @@ class _ProfileHeader extends StatelessWidget {
     return Row(
       children: [
         GestureDetector(
-          onTap: vm.isUploadingPhoto ? null : () async {
-            await vm.elegirFotoPerfil();
-          },
+          onTap: vm.isUploadingPhoto
+              ? null
+              : () async {
+                  await vm.elegirFotoPerfil();
+                },
           child: Stack(
             children: [
               CircleAvatar(
@@ -726,7 +731,7 @@ class _DisponibilidadTile extends StatelessWidget {
           Switch(
             value: vm.disponible,
             onChanged: (_) => vm.toggleDisponible(),
-            activeColor: AppColors.workerRole,
+            activeThumbColor: AppColors.workerRole,
           ),
         ],
       ),

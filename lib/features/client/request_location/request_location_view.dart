@@ -36,7 +36,8 @@ class _RequestLocationContent extends StatefulWidget {
   const _RequestLocationContent({this.solicitud});
 
   @override
-  State<_RequestLocationContent> createState() => _RequestLocationContentState();
+  State<_RequestLocationContent> createState() =>
+      _RequestLocationContentState();
 }
 
 class _RequestLocationContentState extends State<_RequestLocationContent> {
@@ -80,7 +81,8 @@ class _RequestLocationContentState extends State<_RequestLocationContent> {
       final solicitudCompleta = vm.aplicarA(widget.solicitud!);
 
       // 2. INSERT real en Supabase — aquí se crea la fila en solicitudes_servicio
-      final solicitudCreada = await _repository.createSolicitud(solicitudCompleta);
+      final solicitudCreada =
+          await _repository.createSolicitud(solicitudCompleta);
 
       // 3. Solo navegar si el insert fue exitoso (solicitudCreada tiene id real)
       if (!context.mounted) return;
@@ -140,7 +142,7 @@ class _RequestLocationContentState extends State<_RequestLocationContent> {
                       prefixIcon: Icon(Icons.location_city_rounded),
                     ),
                     hint: const Text('Selecciona departamento'),
-                    value: vm.departamento,
+                    initialValue: vm.departamento,
                     items: vm.departamentos
                         .map((d) => DropdownMenuItem(value: d, child: Text(d)))
                         .toList(),
@@ -156,7 +158,7 @@ class _RequestLocationContentState extends State<_RequestLocationContent> {
                       prefixIcon: Icon(Icons.location_on_outlined),
                     ),
                     hint: const Text('Selecciona municipio'),
-                    value: vm.municipio,
+                    initialValue: vm.municipio,
                     items: vm.municipios
                         .map((m) => DropdownMenuItem(value: m, child: Text(m)))
                         .toList(),
@@ -264,9 +266,10 @@ class _RequestLocationContentState extends State<_RequestLocationContent> {
                         Expanded(
                           child: Text(
                             'La dirección exacta solo se comparte con el trabajador confirmado.',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.info,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppColors.info,
+                                    ),
                           ),
                         ),
                       ],
@@ -344,9 +347,7 @@ class _UbicacionGpsPanel extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
-        color: tieneGps
-            ? AppColors.successLight
-            : AppColors.surfaceVariant,
+        color: tieneGps ? AppColors.successLight : AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         border: Border.all(
           color: tieneGps ? AppColors.success : AppColors.border,
@@ -366,7 +367,9 @@ class _UbicacionGpsPanel extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              tieneGps ? Icons.location_on_rounded : Icons.location_off_outlined,
+              tieneGps
+                  ? Icons.location_on_rounded
+                  : Icons.location_off_outlined,
               color: tieneGps ? AppColors.success : AppColors.grey500,
               size: 24,
             ),
@@ -378,10 +381,14 @@ class _UbicacionGpsPanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  tieneGps ? 'Ubicación GPS detectada' : 'Ubicación GPS no configurada',
+                  tieneGps
+                      ? 'Ubicación GPS detectada'
+                      : 'Ubicación GPS no configurada',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: tieneGps ? AppColors.success : AppColors.textPrimary,
+                        color: tieneGps
+                            ? AppColors.success
+                            : AppColors.textPrimary,
                       ),
                 ),
                 const SizedBox(height: 2),
@@ -390,7 +397,9 @@ class _UbicacionGpsPanel extends StatelessWidget {
                       ? 'Lat ${vm.latitud?.toStringAsFixed(4)}, Lon ${vm.longitud?.toStringAsFixed(4)}'
                       : 'Completa la dirección manualmente o pulsa "Mi ubicación".',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: tieneGps ? AppColors.success : AppColors.textSecondary,
+                        color: tieneGps
+                            ? AppColors.success
+                            : AppColors.textSecondary,
                       ),
                 ),
               ],
@@ -405,7 +414,8 @@ class _UbicacionGpsPanel extends StatelessWidget {
               label: const Text('Mi\nubicación', textAlign: TextAlign.center),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(70, 48),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),

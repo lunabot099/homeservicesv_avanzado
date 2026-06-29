@@ -6,7 +6,9 @@ library;
 
 import 'package:flutter/foundation.dart';
 import '../../../data/repositories/chats_repository.dart';
+import '../../../data/models/solicitud_servicio_model.dart';
 import '../../../data/repositories/perfiles_repository.dart';
+import '../../../data/repositories/solicitudes_repository.dart';
 import '../../../state/session_controller.dart';
 
 /// Modelo de vista para cada fila en la lista de chats del cliente.
@@ -35,6 +37,7 @@ class ChatPreviewModel {
 class ClientMessagesViewModel extends ChangeNotifier {
   final ChatsRepository _chatsRepo;
   final PerfilesRepository _perfilesRepo;
+  final SolicitudesRepository _solicitudesRepo;
   final SessionController _sessionController;
 
   List<ChatPreviewModel> _chats = [];
@@ -48,9 +51,11 @@ class ClientMessagesViewModel extends ChangeNotifier {
   ClientMessagesViewModel({
     ChatsRepository? chatsRepo,
     PerfilesRepository? perfilesRepo,
+    SolicitudesRepository? solicitudesRepo,
     required SessionController sessionController,
   })  : _chatsRepo = chatsRepo ?? ChatsRepository(),
         _perfilesRepo = perfilesRepo ?? PerfilesRepository(),
+        _solicitudesRepo = solicitudesRepo ?? SolicitudesRepository(),
         _sessionController = sessionController;
 
   /// Carga y enriquece los chats del cliente desde Supabase.
@@ -67,6 +72,10 @@ class ClientMessagesViewModel extends ChangeNotifier {
 
       // Enriquecer cada chat con datos del perfil del trabajador
       final futures = rawChats.map((chat) async {
+        final solicitud =
+            await _solicitudesRepo.getSolicitudById(chat.solicitudId);
+        if (!_chatActivo(solicitud)) return null;
+
         String nombre = 'Trabajador';
         String? fotoUrl;
 
@@ -84,7 +93,8 @@ class ClientMessagesViewModel extends ChangeNotifier {
         try {
           final ultimo = await _chatsRepo.getUltimoMensaje(chat.id!);
           if (ultimo != null) {
-            ultimoMensajeTexto = _textoMensaje(ultimo.tipo.name, ultimo.contenido);
+            ultimoMensajeTexto =
+                _textoMensaje(ultimo.tipo.name, ultimo.contenido);
             fechaMensaje = ultimo.creadoEn ?? fechaMensaje;
           }
         } catch (_) {}
@@ -101,9 +111,11 @@ class ClientMessagesViewModel extends ChangeNotifier {
         );
       });
 
-      _chats = await Future.wait(futures);
+      _chats =
+          (await Future.wait(futures)).whereType<ChatPreviewModel>().toList();
       // Ordenar por más reciente primero
-      _chats.sort((a, b) => b.fechaUltimoMensaje.compareTo(a.fechaUltimoMensaje));
+      _chats
+          .sort((a, b) => b.fechaUltimoMensaje.compareTo(a.fechaUltimoMensaje));
     } catch (e) {
       debugPrint('[ClientMessagesVM] Error: $e');
       _error = 'No se pudieron cargar los mensajes.';
@@ -119,4 +131,13 @@ class ClientMessagesViewModel extends ChangeNotifier {
     if (tipo == 'sistema') return '🔔 ${contenido ?? 'Evento del servicio'}';
     return contenido ?? 'Chat activo';
   }
+}
+
+bool _chatActivo(SolicitudServicioModel? solicitud) {
+  final estado = solicitud?.estado;
+  return estado == EstadoSolicitud.confirmada ||
+      estado == EstadoSolicitud.en_camino ||
+      estado == EstadoSolicitud.ha_llegado ||
+      estado == EstadoSolicitud.en_proceso ||
+      estado == EstadoSolicitud.finalizado_pendiente;
 }

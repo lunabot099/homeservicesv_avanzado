@@ -72,6 +72,18 @@ class ChatsRepository {
     }
   }
 
+  Future<void> eliminarChatDeSolicitud(String solicitudId) async {
+    try {
+      final chat = await _chatsService.getBySolicitud(solicitudId);
+      if (chat?.id != null) {
+        await _mensajesService.eliminarMensajesDeChat(chat!.id!);
+      }
+      await _chatsService.eliminarPorSolicitud(solicitudId);
+    } catch (e) {
+      throw Exception('Error al eliminar chat: $e');
+    }
+  }
+
   // ── Mensajes ─────────────────────────────────────────────────
 
   /// Envía un mensaje de texto.
@@ -140,8 +152,7 @@ class ChatsRepository {
     required String usuarioId,
   }) async {
     try {
-      await _mensajesService.marcarLeidos(
-          chatId: chatId, usuarioId: usuarioId);
+      await _mensajesService.marcarLeidos(chatId: chatId, usuarioId: usuarioId);
     } catch (e) {
       throw Exception('Error al marcar mensajes: $e');
     }

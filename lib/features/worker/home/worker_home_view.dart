@@ -21,7 +21,7 @@ class WorkerHomeView extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (ctx) => WorkerHomeViewModel(
         sessionController: ctx.read<SessionController>(),
-      )..loadSolicitudesDisponibles(),
+      )..iniciarActualizacionAutomatica(),
       child: const _WorkerHomeContent(),
     );
   }
@@ -99,9 +99,7 @@ class _WorkerHomeContentState extends State<_WorkerHomeContent> {
   }
 
   Widget _navTab(BuildContext context,
-      {required IconData icon,
-      required String label,
-      required String route}) {
+      {required IconData icon, required String label, required String route}) {
     return Center(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 56, color: AppColors.grey300),
@@ -121,9 +119,18 @@ class _WorkerHomeContentState extends State<_WorkerHomeContent> {
     return NavigationBar(
       selectedIndex: _navIndex,
       onDestinationSelected: (i) {
-        if (i == 1) { context.push(RouteNames.workerApplications); return; }
-        if (i == 2) { context.push(RouteNames.workerMessages); return; }
-        if (i == 3) { context.push(RouteNames.workerProfile); return; }
+        if (i == 1) {
+          context.push(RouteNames.workerApplications);
+          return;
+        }
+        if (i == 2) {
+          context.push(RouteNames.workerMessages);
+          return;
+        }
+        if (i == 3) {
+          context.push(RouteNames.workerProfile);
+          return;
+        }
         setState(() => _navIndex = i);
       },
       backgroundColor: AppColors.surface,
@@ -182,7 +189,7 @@ class _HomeTab extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Estas son las solicitudes cercanas activas ahora.',
+                    'Se actualizan automáticamente cuando entra una solicitud.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -262,7 +269,8 @@ class _GreetingCard extends StatelessWidget {
       ),
       child: Row(children: [
         Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(vm.saludo,
                 style: const TextStyle(
                     color: Colors.white,
@@ -271,8 +279,7 @@ class _GreetingCard extends StatelessWidget {
             const SizedBox(height: 4),
             if (vm.promedioCalificacion != null)
               Row(children: [
-                const Icon(Icons.star_rounded,
-                    color: Colors.amber, size: 16),
+                const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
                 const SizedBox(width: 4),
                 Text(
                   '${vm.promedioCalificacion!.toStringAsFixed(1)} (${vm.cantidadResenas ?? 0} reseñas)',
@@ -290,8 +297,8 @@ class _GreetingCard extends StatelessWidget {
             color: Colors.white.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.handyman_rounded,
-              color: Colors.white, size: 28),
+          child:
+              const Icon(Icons.handyman_rounded, color: Colors.white, size: 28),
         ),
       ]),
     );
@@ -316,19 +323,16 @@ class _DisponibilidadToggle extends StatelessWidget {
       ),
       child: Row(children: [
         Icon(
-          vm.disponible
-              ? Icons.check_circle_rounded
-              : Icons.cancel_outlined,
+          vm.disponible ? Icons.check_circle_rounded : Icons.cancel_outlined,
           color: vm.disponible ? AppColors.workerRole : AppColors.grey400,
           size: 22,
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(
-              vm.disponible
-                  ? 'Disponible para trabajar'
-                  : 'No disponible',
+              vm.disponible ? 'Disponible para trabajar' : 'No disponible',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: vm.disponible
@@ -349,7 +353,7 @@ class _DisponibilidadToggle extends StatelessWidget {
         Switch(
           value: vm.disponible,
           onChanged: (_) => vm.toggleDisponibilidad(),
-          activeColor: AppColors.workerRole,
+          activeThumbColor: AppColors.workerRole,
         ),
       ]),
     );
@@ -415,8 +419,8 @@ class _SolicitudDisponibleCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: _urgenciaColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(AppTheme.radiusFull),

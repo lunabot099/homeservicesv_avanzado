@@ -23,6 +23,7 @@ class WaitingWorkersViewModel extends ChangeNotifier {
   bool _expirada = false;
   String? _error;
   StreamSubscription<List<PostulacionSolicitudModel>>? _streamSub;
+  Timer? _autoRefreshTimer;
   Timer? _expiracionTimer;
 
   WaitingWorkersViewModel({
@@ -47,6 +48,7 @@ class WaitingWorkersViewModel extends ChangeNotifier {
     notifyListeners();
     if (s.id != null) {
       _suscribirPostulaciones(s.id!);
+      _iniciarAutoRefresh(s.id!);
       _iniciarTimerExpiracion(s);
     }
     // Limpieza background: elimina solicitudes expiradas > 90 min
@@ -93,35 +95,50 @@ class WaitingWorkersViewModel extends ChangeNotifier {
     notifyListeners();
 
     _streamSub?.cancel();
-    _streamSub = _postulacionesRepo
-        .streamPostulaciones(solicitudId)
-        .listen(
-          (lista) {
-            _postulaciones = lista;
-            _isLoadingPostulaciones = false;
-            _error = null;
-            notifyListeners();
-          },
-          onError: (e) {
-            debugPrint('[WaitingWorkersVM] Error Realtime: $e');
-            _isLoadingPostulaciones = false;
-            // Fallback: carga manual puntual
-            _cargarPuntual(solicitudId);
-          },
-        );
+    _streamSub = _postulacionesRepo.streamPostulaciones(solicitudId).listen(
+      (lista) {
+        _postulaciones = lista;
+        _isLoadingPostulaciones = false;
+        _error = null;
+        notifyListeners();
+      },
+      onError: (e) {
+        debugPrint('[WaitingWorkersVM] Error Realtime: $e');
+        _isLoadingPostulaciones = false;
+        // Fallback: carga manual puntual
+        _cargarPuntual(solicitudId);
+      },
+    );
+  }
+
+  void _iniciarAutoRefresh(String solicitudId) {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 8), (_) {
+      if (!_cancelado && !_expirada && !_isLoadingPostulaciones) {
+        _cargarPuntual(solicitudId, silencioso: true);
+      }
+    });
   }
 
   /// Carga puntual manual — fallback o refresh explícito.
-  Future<void> _cargarPuntual(String solicitudId) async {
-    _isLoadingPostulaciones = true;
-    notifyListeners();
+  Future<void> _cargarPuntual(
+    String solicitudId, {
+    bool silencioso = false,
+  }) async {
+    if (!silencioso) {
+      _isLoadingPostulaciones = true;
+      notifyListeners();
+    }
     try {
-      _postulaciones = await _postulacionesRepo
-          .getPostulacionesDeSolicitud(solicitudId);
+      _postulaciones =
+          await _postulacionesRepo.getPostulacionesDeSolicitud(solicitudId);
+      _error = null;
     } catch (e) {
       debugPrint('[WaitingWorkersVM] Error al cargar postulaciones: $e');
     } finally {
-      _isLoadingPostulaciones = false;
+      if (!silencioso) {
+        _isLoadingPostulaciones = false;
+      }
       notifyListeners();
     }
   }
@@ -151,6 +168,7 @@ class WaitingWorkersViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _streamSub?.cancel();
+    _autoRefreshTimer?.cancel();
     _expiracionTimer?.cancel();
     super.dispose();
   }

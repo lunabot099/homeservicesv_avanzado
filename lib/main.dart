@@ -1,7 +1,7 @@
-/// main.dart
-/// Punto de entrada de HomeServiceSV.
-/// Inicializa: flutter bindings, variables de entorno y Supabase.
-/// Luego delega todo a App() — sin lógica de negocio aquí.
+// main.dart
+// Punto de entrada de HomeServiceSV.
+// Inicializa: flutter bindings, variables de entorno y Supabase.
+// Luego delega todo a App() — sin lógica de negocio aquí.
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app/app.dart';

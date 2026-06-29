@@ -131,13 +131,13 @@ class _ChatViewState extends State<ChatView> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Chat',
+                    Text(vm.tituloChat,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w700,
                             )),
-                    if (vm.chat != null)
+                    if (vm.subtituloChat != null)
                       Text(
-                        'Solicitud #${_shortenId(vm.chat!.solicitudId)}',
+                        vm.subtituloChat!,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -164,8 +164,7 @@ class _ChatViewState extends State<ChatView> {
                             )
                           : ListView.builder(
                               controller: _scrollCtrl,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 12),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                               itemCount: vm.mensajes.length,
                               itemBuilder: (context, i) {
                                 final msg = vm.mensajes[i];
@@ -189,22 +188,23 @@ class _ChatViewState extends State<ChatView> {
                 if (vm.error != null)
                   Container(
                     color: AppColors.errorLight,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Text(
                       vm.error!,
-                      style: const TextStyle(
-                          color: AppColors.error, fontSize: 12),
+                      style:
+                          const TextStyle(color: AppColors.error, fontSize: 12),
                     ),
                   ),
 
                 // ── Campo de entrada ─────────────────────────────
-                _ChatInputBar(
-                  controller: _msgCtrl,
-                  isSending: vm.isSending,
-                  onSend: _sendText,
-                  onPickImage: _pickAndSendImage,
-                ),
+                if (vm.error == null)
+                  _ChatInputBar(
+                    controller: _msgCtrl,
+                    isSending: vm.isSending,
+                    onSend: _sendText,
+                    onPickImage: _pickAndSendImage,
+                  ),
               ],
             ),
           );
@@ -217,9 +217,6 @@ class _ChatViewState extends State<ChatView> {
     if (a == null || b == null) return false;
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
-
-  String _shortenId(String id) =>
-      id.length > 6 ? id.substring(0, 6) : id;
 }
 
 // ── Widgets internos ────────────────────────────────────────────────────────
@@ -277,8 +274,7 @@ class _MessageBubble extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
         child: Center(
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: AppColors.grey200,
               borderRadius: BorderRadius.circular(AppTheme.radiusFull),
@@ -321,9 +317,7 @@ class _MessageBubble extends StatelessWidget {
                 bottomLeft: Radius.circular(isMine ? AppTheme.radiusLg : 4),
                 bottomRight: Radius.circular(isMine ? 4 : AppTheme.radiusLg),
               ),
-              border: isMine
-                  ? null
-                  : Border.all(color: AppColors.border),
+              border: isMine ? null : Border.all(color: AppColors.border),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.shadowColor,
@@ -337,8 +331,7 @@ class _MessageBubble extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             _hora(msg.creadoEn),
-            style: const TextStyle(
-                fontSize: 10, color: AppColors.textHint),
+            style: const TextStyle(fontSize: 10, color: AppColors.textHint),
           ),
         ],
       ),
@@ -424,16 +417,14 @@ class _ChatInputBar extends StatelessWidget {
                 hintText: 'Escribe un mensaje...',
                 filled: true,
                 fillColor: AppColors.surfaceVariant,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 10),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppTheme.radiusFull),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                   borderSide: BorderSide.none,
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppTheme.radiusFull),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                   borderSide: BorderSide.none,
                 ),
               ),

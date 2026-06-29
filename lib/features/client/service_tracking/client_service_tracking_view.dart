@@ -15,11 +15,13 @@ import '../../../data/models/reporte_servicio_model.dart';
 import 'client_service_tracking_viewmodel.dart';
 
 class ClientServiceTrackingView extends StatefulWidget {
+  final String? solicitudId;
   final SolicitudServicioModel? solicitud;
   final WorkerCatalogItemModel? trabajador;
 
   const ClientServiceTrackingView({
     super.key,
+    this.solicitudId,
     this.solicitud,
     this.trabajador,
   });
@@ -36,8 +38,10 @@ class _ClientServiceTrackingViewState extends State<ClientServiceTrackingView> {
   void initState() {
     super.initState();
     _vm = ClientServiceTrackingViewModel();
-    if (widget.solicitud != null && widget.trabajador != null) {
-      _vm.load(solicitud: widget.solicitud!, trabajador: widget.trabajador!);
+    if (widget.solicitud != null) {
+      _vm.load(solicitud: widget.solicitud!, trabajador: widget.trabajador);
+    } else if (widget.solicitudId != null) {
+      _vm.loadById(widget.solicitudId!);
     }
   }
 
@@ -50,87 +54,146 @@ class _ClientServiceTrackingViewState extends State<ClientServiceTrackingView> {
           final s = vm.solicitud ?? widget.solicitud;
           final w = vm.trabajador ?? widget.trabajador;
 
-          return Scaffold(
-            backgroundColor: AppColors.background,
-            appBar: AppBar(
-              title: const Text('Seguimiento del servicio'),
-              backgroundColor: Colors.transparent,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.support_agent_rounded),
-                  onPressed: () {}, // TODO: Soporte Fase 3
-                  tooltip: 'Ayuda/Soporte',
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) {
+              if (!didPop) context.go(RouteNames.clientHome);
+            },
+            child: Scaffold(
+              backgroundColor: AppColors.background,
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded),
+                  onPressed: () => context.go(RouteNames.clientHome),
                 ),
-              ],
-            ),
-            body: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(AppTheme.paddingLg),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // ── Estado actual ─────────────────────
-                        if (s != null)
-                          _StatusCard(
-                            estado: s.estado,
-                            onUpdate: (estado) => vm.updateEstado(estado),
-                          ),
-                        const SizedBox(height: 20),
-                        // ── Info trabajador ───────────────────
-                        if (w != null) _WorkerInfoCard(worker: w),
-                        const SizedBox(height: 20),
-                        // ── Botones de acción ─────────────────
-                        if (s?.estado == EstadoSolicitud.finalizado_pendiente) ...[
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: () async {
-                                await vm.finalizarTrabajo();
-                                if (context.mounted) {
-                                  context.push(
-                                    '${RouteNames.clientRateWorker}/${s!.id ?? "mock"}',
-                                    extra: {
-                                      'trabajador': w,
-                                      'solicitudId': s.id ?? 'mock',
-                                    },
-                                  );
-                                }
-                              },
-                              icon: const Icon(Icons.check_circle_rounded),
-                              label: const Text('Confirmar finalización'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.success,
-                                minimumSize: const Size.fromHeight(52),
+                title: const Text('Seguimiento del servicio'),
+                backgroundColor: Colors.transparent,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.support_agent_rounded),
+                    onPressed: () {}, // TODO: Soporte Fase 3
+                    tooltip: 'Ayuda/Soporte',
+                  ),
+                ],
+              ),
+              body: vm.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : vm.error != null
+                      ? _TrackingError(message: vm.error!)
+                      : Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                padding:
+                                    const EdgeInsets.all(AppTheme.paddingLg),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (s != null)
+                                      _StatusCard(
+                                        estado: s.estado,
+                                        onUpdate: (estado) =>
+                                            vm.updateEstado(estado),
+                                      ),
+                                    const SizedBox(height: 20),
+                                    if (w != null) _WorkerInfoCard(worker: w),
+                                    const SizedBox(height: 20),
+                                    if (s?.estado ==
+                                        EstadoSolicitud
+                                            .finalizado_pendiente) ...[
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton.icon(
+                                          onPressed: () async {
+                                            await vm.finalizarTrabajo();
+                                            if (context.mounted) {
+                                              context.push(
+                                                '${RouteNames.clientRateWorker}/${s!.id ?? "mock"}',
+                                                extra: {
+                                                  'trabajador': w,
+                                                  'solicitudId': s.id ?? 'mock',
+                                                },
+                                              );
+                                            }
+                                          },
+                                          icon: const Icon(
+                                              Icons.check_circle_rounded),
+                                          label: const Text(
+                                              'Confirmar finalización'),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.success,
+                                            minimumSize:
+                                                const Size.fromHeight(52),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                    ],
+                                    OutlinedButton.icon(
+                                      onPressed: () => vm.toggleReportSheet(),
+                                      icon: const Icon(
+                                        Icons.flag_outlined,
+                                        color: AppColors.error,
+                                      ),
+                                      label: const Text(
+                                        'Reportar problema',
+                                        style:
+                                            TextStyle(color: AppColors.error),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: AppColors.error),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                        // ── Reportar problema ─────────────────
-                        OutlinedButton.icon(
-                          onPressed: () => vm.toggleReportSheet(),
-                          icon: const Icon(Icons.flag_outlined,
-                              color: AppColors.error),
-                          label: const Text('Reportar problema',
-                              style: TextStyle(color: AppColors.error)),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppColors.error),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              bottomSheet: vm.showReportSheet
+                  ? _ReportSheet(vm: vm, solicitudId: s?.id)
+                  : null,
             ),
-            // ── BottomSheet de Reporte ────────────────────────
-            bottomSheet: vm.showReportSheet
-                ? _ReportSheet(vm: vm, solicitudId: s?.id)
-                : null,
           );
         },
+      ),
+    );
+  }
+}
+
+class _TrackingError extends StatelessWidget {
+  final String message;
+
+  const _TrackingError({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.paddingLg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.error_outline_rounded,
+              color: AppColors.error,
+              size: 40,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => context.go(RouteNames.clientHome),
+              icon: const Icon(Icons.home_rounded),
+              label: const Text('Volver al inicio'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -185,8 +248,7 @@ class _StatusTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentIdx =
-        _steps.indexWhere((s) => s.$1 == currentEstado);
+    final currentIdx = _steps.indexWhere((s) => s.$1 == currentEstado);
 
     return Column(
       children: List.generate(_steps.length, (i) {
@@ -213,7 +275,10 @@ class _StatusTimeline extends StatelessWidget {
                   ),
                 ),
                 if (i < _steps.length - 1)
-                  Container(width: 2, height: 24, color: isDone ? AppColors.primary : AppColors.grey300),
+                  Container(
+                      width: 2,
+                      height: 24,
+                      color: isDone ? AppColors.primary : AppColors.grey300),
               ],
             ),
             const SizedBox(width: 12),
@@ -254,9 +319,8 @@ class _WorkerInfoCard extends StatelessWidget {
           CircleAvatar(
             radius: 24,
             backgroundColor: AppColors.primaryLight,
-            backgroundImage: worker.fotoUrl != null
-                ? NetworkImage(worker.fotoUrl!)
-                : null,
+            backgroundImage:
+                worker.fotoUrl != null ? NetworkImage(worker.fotoUrl!) : null,
             child: worker.fotoUrl == null
                 ? Text(
                     worker.nombre.isNotEmpty
@@ -323,7 +387,8 @@ class _ReportSheetState extends State<_ReportSheet> {
       padding: const EdgeInsets.all(AppTheme.paddingLg),
       decoration: const BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusLg)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppTheme.radiusLg)),
         boxShadow: [BoxShadow(color: AppColors.shadowColor, blurRadius: 16)],
       ),
       child: Column(
@@ -345,14 +410,24 @@ class _ReportSheetState extends State<_ReportSheet> {
             ],
           ),
           const SizedBox(height: 12),
-          ...MotivoReporte.values.map((m) => RadioListTile<MotivoReporte>(
-                title: Text(m.label, style: const TextStyle(fontSize: 14)),
-                value: m,
-                groupValue: _motivo,
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                onChanged: (v) => setState(() => _motivo = v),
-              )),
+          RadioGroup<MotivoReporte>(
+            groupValue: _motivo,
+            onChanged: (v) => setState(() => _motivo = v),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: MotivoReporte.values
+                  .map((m) => RadioListTile<MotivoReporte>(
+                        title: Text(
+                          m.label,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        value: m,
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ))
+                  .toList(),
+            ),
+          ),
           const SizedBox(height: 8),
           TextField(
             controller: _descripcionCtrl,

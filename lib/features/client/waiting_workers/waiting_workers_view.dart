@@ -68,7 +68,8 @@ class _WaitingWorkersViewState extends State<WaitingWorkersView>
                 if (vm.expirada) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Tu solicitud expiró sin recibir aceptación.'),
+                      content:
+                          Text('Tu solicitud expiró sin recibir aceptación.'),
                       backgroundColor: AppColors.warning,
                     ),
                   );
@@ -85,33 +86,33 @@ class _WaitingWorkersViewState extends State<WaitingWorkersView>
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_rounded),
                 tooltip: 'Volver',
-                onPressed: () =>
-                    context.canPop() ? context.pop() : context.go(RouteNames.clientHome),
+                onPressed: () => context.canPop()
+                    ? context.pop()
+                    : context.go(RouteNames.clientHome),
               ),
               backgroundColor: Colors.transparent,
               actions: [
                 // Botón refresh prominente
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child:
-                      vm.isLoadingPostulaciones
-                          ? const Padding(
-                            padding: EdgeInsets.all(14),
-                            child: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          )
-                          : IconButton.filled(
-                            icon: const Icon(Icons.refresh_rounded, size: 20),
-                            style: IconButton.styleFrom(
-                              backgroundColor: AppColors.primaryLight,
-                              foregroundColor: AppColors.primary,
-                            ),
-                            tooltip: 'Actualizar ofertas',
-                            onPressed: vm.refrescar,
+                  child: vm.isLoadingPostulaciones
+                      ? const Padding(
+                          padding: EdgeInsets.all(14),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           ),
+                        )
+                      : IconButton.filled(
+                          icon: const Icon(Icons.refresh_rounded, size: 20),
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.primaryLight,
+                            foregroundColor: AppColors.primary,
+                          ),
+                          tooltip: 'Actualizar ofertas',
+                          onPressed: vm.refrescar,
+                        ),
                 ),
               ],
             ),
@@ -134,22 +135,23 @@ class _WaitingWorkersViewState extends State<WaitingWorkersView>
                         style: Theme.of(
                           context,
                         ).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 6),
                       // Indicativo de actualización
                       AnimatedCrossFade(
                         duration: const Duration(milliseconds: 300),
-                        crossFadeState:
-                            vm.trabajadoresInteresados > 0
-                                ? CrossFadeState.showSecond
-                                : CrossFadeState.showFirst,
+                        crossFadeState: vm.trabajadoresInteresados > 0
+                            ? CrossFadeState.showSecond
+                            : CrossFadeState.showFirst,
                         firstChild: Text(
                           '⟳ Actualización en tiempo real activa',
-                          style: Theme.of(context).textTheme.bodySmall
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
                               ?.copyWith(color: AppColors.textSecondary),
                           textAlign: TextAlign.center,
                         ),
@@ -204,7 +206,9 @@ class _WaitingWorkersViewState extends State<WaitingWorkersView>
                           const SizedBox(height: 4),
                           Text(
                             'Ofertas recibidas',
-                            style: Theme.of(context).textTheme.titleSmall
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
                                 ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 10),
@@ -230,13 +234,13 @@ class _WaitingWorkersViewState extends State<WaitingWorkersView>
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Aún no hay ofertas.\nPulsa ↻ para actualizar.',
+                                  'Aún no hay ofertas.\nSe actualizará automáticamente.',
                                   textAlign: TextAlign.center,
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                                        color: AppColors.textSecondary,
+                                      ),
                                 ),
                               ],
                             ),
@@ -255,11 +259,10 @@ class _WaitingWorkersViewState extends State<WaitingWorkersView>
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton.icon(
-                              onPressed:
-                                  () => context.push(
-                                    RouteNames.clientWorkersCatalog,
-                                    extra: widget.solicitud,
-                                  ),
+                              onPressed: () => context.push(
+                                RouteNames.clientWorkersCatalog,
+                                extra: widget.solicitud,
+                              ),
                               icon: const Icon(Icons.people_outline_rounded),
                               label: const Text('Ver ofertas en detalle'),
                             ),
@@ -271,8 +274,8 @@ class _WaitingWorkersViewState extends State<WaitingWorkersView>
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
-                            onPressed:
-                                () => _mostrarDialogoCancelar(context, vm),
+                            onPressed: () =>
+                                _mostrarDialogoCancelar(context, vm),
                             icon: const Icon(Icons.cancel_outlined),
                             label: const Text('Cancelar solicitud'),
                             style: OutlinedButton.styleFrom(
@@ -301,24 +304,23 @@ class _WaitingWorkersViewState extends State<WaitingWorkersView>
     final confirm = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder:
-          (ctx) => AlertDialog(
-            title: const Text('¿Cancelar solicitud?'),
-            content: const Text(
-              'Se detendrá la búsqueda de trabajadores y la solicitud quedará cancelada.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('No, continuar'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                style: TextButton.styleFrom(foregroundColor: AppColors.error),
-                child: const Text('Sí, cancelar'),
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        title: const Text('¿Cancelar solicitud?'),
+        content: const Text(
+          'Se detendrá la búsqueda de trabajadores y la solicitud quedará cancelada.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('No, continuar'),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Sí, cancelar'),
+          ),
+        ],
+      ),
     );
     if (confirm == true) await vm.cancelarSolicitud();
   }
@@ -353,7 +355,12 @@ class _PostulacionCardState extends State<_PostulacionCard> {
     try {
       final repo = PerfilesRepository();
       final p = await repo.getPerfilById(widget.postulacion.trabajadorId);
-      if (mounted) setState(() { _perfil = p; _cargandoPerfil = false; });
+      if (mounted) {
+        setState(() {
+          _perfil = p;
+          _cargandoPerfil = false;
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _cargandoPerfil = false);
     }
@@ -422,7 +429,7 @@ class _PostulacionCardState extends State<_PostulacionCard> {
     if (s == null) return;
     final session = context.read<SessionController>();
     context.push(
-      '${RouteNames.clientChat}/${s.id ?? 'new'}',
+      '${RouteNames.clientChat}/new',
       extra: {
         'solicitudId': s.id ?? 'mock',
         'clienteId': session.currentUser?.id ?? 'mock',
@@ -461,14 +468,16 @@ class _PostulacionCardState extends State<_PostulacionCard> {
             children: [
               _cargandoPerfil
                   ? Container(
-                      width: 48, height: 48,
+                      width: 48,
+                      height: 48,
                       decoration: const BoxDecoration(
                         color: AppColors.workerRoleLight,
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
                         child: SizedBox(
-                          width: 20, height: 20,
+                          width: 20,
+                          height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       ),
@@ -495,8 +504,8 @@ class _PostulacionCardState extends State<_PostulacionCard> {
                     Text(
                       _perfil?.nombreCompleto ?? 'Trabajador interesado',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                            fontWeight: FontWeight.w700,
+                          ),
                     ),
                     const SizedBox(height: 2),
                     _StarRating(calificacion: 0.0, cantidad: 0),
@@ -524,8 +533,8 @@ class _PostulacionCardState extends State<_PostulacionCard> {
                 Text(
                   'Precio estimado: ',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                        color: AppColors.textSecondary,
+                      ),
                 ),
                 Text(
                   '\$${p.precioEstimado!.toStringAsFixed(2)}',
@@ -554,8 +563,8 @@ class _PostulacionCardState extends State<_PostulacionCard> {
                   child: Text(
                     p.mensajeInicial!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
+                          color: AppColors.textPrimary,
+                        ),
                   ),
                 ),
               ],
@@ -566,9 +575,9 @@ class _PostulacionCardState extends State<_PostulacionCard> {
             Text(
               'El trabajador no incluyó precio ni mensaje.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
-                fontStyle: FontStyle.italic,
-              ),
+                    color: AppColors.textSecondary,
+                    fontStyle: FontStyle.italic,
+                  ),
             ),
           ],
 
@@ -577,35 +586,36 @@ class _PostulacionCardState extends State<_PostulacionCard> {
           // ── Botones de acción ────────────────────────────────────
           Row(
             children: [
-              // Chat
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _irAlChat,
-                  icon: const Icon(Icons.chat_rounded, size: 16),
-                  label: const Text('Chatear'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    textStyle: const TextStyle(fontSize: 13),
+              // Chat disponible solo cuando el trabajador ya fue aceptado.
+              if (p.estado == EstadoPostulacion.aceptada) ...[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _irAlChat,
+                    icon: const Icon(Icons.chat_rounded, size: 16),
+                    label: const Text('Chatear'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      textStyle: const TextStyle(fontSize: 13),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
+                const SizedBox(width: 10),
+              ],
               // Seleccionar
               Expanded(
                 flex: 2,
                 child: ElevatedButton.icon(
                   onPressed: _seleccionando ? null : _seleccionarTrabajador,
-                  icon:
-                      _seleccionando
-                          ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                          : const Icon(Icons.check_circle_rounded, size: 16),
+                  icon: _seleccionando
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.check_circle_rounded, size: 16),
                   label: Text(
                     _seleccionando ? 'Seleccionando...' : 'Seleccionar',
                   ),
@@ -667,8 +677,8 @@ class _StarRating extends StatelessWidget {
             full
                 ? Icons.star_rounded
                 : half
-                ? Icons.star_half_rounded
-                : Icons.star_outline_rounded,
+                    ? Icons.star_half_rounded
+                    : Icons.star_outline_rounded,
             size: 14,
             color: AppColors.estadoConfirmado,
           );
