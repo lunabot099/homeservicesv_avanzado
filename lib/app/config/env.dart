@@ -18,7 +18,10 @@ class Env {
       value != null && value.isNotEmpty,
       'SUPABASE_URL no está definida en .env',
     );
-    return value!;
+    return value!
+        .trim()
+        .replaceFirst(RegExp(r'/rest/v1/?$'), '')
+        .replaceFirst(RegExp(r'/+$'), '');
   }
 
   /// Clave anónima pública de Supabase
