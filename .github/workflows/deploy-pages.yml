@@ -24,8 +24,11 @@ jobs:
 
       - name: Create production env file
         run: |
+          SUPABASE_URL="${{ secrets.SUPABASE_URL }}"
+          SUPABASE_URL="${SUPABASE_URL%/}"
+          SUPABASE_URL="${SUPABASE_URL%/rest/v1}"
           {
-            echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}"
+            echo "SUPABASE_URL=${SUPABASE_URL}"
             echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}"
             echo "BUCKET_PERFIL_FOTOS=perfil-fotos"
             echo "BUCKET_DUI_DOCUMENTOS=dui-documentos"
