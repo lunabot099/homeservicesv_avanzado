@@ -43,10 +43,14 @@ class _RateWorkerViewState extends State<RateWorkerView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.trabajador != null) {
         final session = context.read<SessionController>();
+        final solicitudId = widget.solicitudId;
+        final clienteId = session.currentUser?.id;
+        if (solicitudId == null || clienteId == null) return;
+
         _vm.load(
           trabajador: widget.trabajador!,
-          solicitudId: widget.solicitudId ?? 'mock',
-          clienteId: session.currentUser?.id ?? 'mock',
+          solicitudId: solicitudId,
+          clienteId: clienteId,
         );
       }
     });

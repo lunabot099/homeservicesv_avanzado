@@ -33,7 +33,11 @@ class RateWorkerViewModel extends ChangeNotifier {
   bool get enviado => _enviado;
   String? get error => _error;
   WorkerCatalogItemModel? get trabajador => _trabajador;
-  bool get puedeEnviar => _calificacion > 0;
+  bool get puedeEnviar =>
+      _calificacion > 0 &&
+      _solicitudId != null &&
+      _clienteId != null &&
+      _trabajador != null;
 
   void load({
     required WorkerCatalogItemModel trabajador,

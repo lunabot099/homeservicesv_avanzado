@@ -25,7 +25,8 @@ class BookingConfirmationView extends StatefulWidget {
   });
 
   @override
-  State<BookingConfirmationView> createState() => _BookingConfirmationViewState();
+  State<BookingConfirmationView> createState() =>
+      _BookingConfirmationViewState();
 }
 
 class _BookingConfirmationViewState extends State<BookingConfirmationView> {
@@ -70,7 +71,8 @@ class _BookingConfirmationViewState extends State<BookingConfirmationView> {
                           padding: const EdgeInsets.all(AppTheme.paddingMd),
                           decoration: BoxDecoration(
                             color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                            borderRadius:
+                                BorderRadius.circular(AppTheme.radiusLg),
                             border: Border.all(color: AppColors.border),
                           ),
                           child: Row(
@@ -96,20 +98,21 @@ class _BookingConfirmationViewState extends State<BookingConfirmationView> {
                                         style: Theme.of(context)
                                             .textTheme
                                             .titleMedium
-                                            ?.copyWith(fontWeight: FontWeight.w700)),
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.w700)),
                                     if (w.especialidad != null)
                                       Text(w.especialidad!,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall
                                               ?.copyWith(
-                                                  color: AppColors.textSecondary)),
+                                                  color:
+                                                      AppColors.textSecondary)),
                                     const SizedBox(height: 4),
                                     if (w.tarifa != null)
                                       Text(
                                         '\$${w.tarifa!.toStringAsFixed(0)}/día',
-                                        style:
-                                            const TextStyle(
+                                        style: const TextStyle(
                                           color: AppColors.primary,
                                           fontWeight: FontWeight.w700,
                                           fontSize: 16,
@@ -156,7 +159,8 @@ class _BookingConfirmationViewState extends State<BookingConfirmationView> {
                             const SizedBox(width: 8),
                             const Text('Urgencia: ',
                                 style: TextStyle(
-                                    color: AppColors.textSecondary, fontSize: 13)),
+                                    color: AppColors.textSecondary,
+                                    fontSize: 13)),
                             ServiceTag.urgencia(s.urgencia),
                           ],
                         ),
@@ -171,7 +175,8 @@ class _BookingConfirmationViewState extends State<BookingConfirmationView> {
                           padding: const EdgeInsets.all(AppTheme.paddingMd),
                           decoration: BoxDecoration(
                             color: AppColors.successLight,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            borderRadius:
+                                BorderRadius.circular(AppTheme.radiusMd),
                           ),
                           child: Row(
                             children: [
@@ -195,7 +200,8 @@ class _BookingConfirmationViewState extends State<BookingConfirmationView> {
                                     const Text(
                                       'El trabajador ha sido notificado.',
                                       style: TextStyle(
-                                          color: AppColors.success, fontSize: 12),
+                                          color: AppColors.success,
+                                          fontSize: 12),
                                     ),
                                   ],
                                 ),
@@ -208,10 +214,14 @@ class _BookingConfirmationViewState extends State<BookingConfirmationView> {
                         PrimaryButton(
                           label: 'Ver seguimiento',
                           icon: Icons.track_changes_rounded,
-                          onPressed: () => context.push(
-                            '${RouteNames.clientServiceTracking}/${s.id ?? "mock"}',
-                            extra: {'solicitud': s, 'trabajador': w},
-                          ),
+                          onPressed: () {
+                            final solicitudId = s.id;
+                            if (solicitudId == null) return;
+                            context.push(
+                              '${RouteNames.clientServiceTracking}/$solicitudId',
+                              extra: {'solicitud': s, 'trabajador': w},
+                            );
+                          },
                         ),
                         const SizedBox(height: 12),
                         SizedBox(
@@ -248,7 +258,8 @@ class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _DetailRow({required this.icon, required this.label, required this.value});
+  const _DetailRow(
+      {required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -258,12 +269,15 @@ class _DetailRow extends StatelessWidget {
         Icon(icon, size: 16, color: AppColors.textSecondary),
         const SizedBox(width: 8),
         Text('$label: ',
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+            style:
+                const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
         Expanded(
           child: Text(
             value,
             style: const TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary),
           ),
         ),
       ],

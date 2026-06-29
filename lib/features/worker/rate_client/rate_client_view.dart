@@ -47,9 +47,13 @@ class _RateClientViewState extends State<RateClientView> {
       sessionController: context.read<SessionController>(),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final solicitudId = widget.solicitudId;
+      final clienteId = widget.clienteId;
+      if (solicitudId == null || clienteId == null) return;
+
       _vm.load(
-        solicitudId: widget.solicitudId ?? 'mock',
-        clienteId: widget.clienteId ?? 'mock',
+        solicitudId: solicitudId,
+        clienteId: clienteId,
       );
     });
   }
@@ -200,9 +204,8 @@ class _RateClientViewState extends State<RateClientView> {
                           color: selected
                               ? AppColors.workerRole
                               : AppColors.textPrimary,
-                          fontWeight: selected
-                              ? FontWeight.w600
-                              : FontWeight.w400,
+                          fontWeight:
+                              selected ? FontWeight.w600 : FontWeight.w400,
                         ),
                       );
                     }).toList(),
@@ -236,12 +239,10 @@ class _RateClientViewState extends State<RateClientView> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: AppColors.errorLight,
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.radiusMd),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),
                       child: Text(vm.error!,
-                          style:
-                              const TextStyle(color: AppColors.error)),
+                          style: const TextStyle(color: AppColors.error)),
                     ),
                     const SizedBox(height: 12),
                   ],
@@ -257,8 +258,7 @@ class _RateClientViewState extends State<RateClientView> {
                             if (!ok && context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(
-                                      vm.error ?? 'Error al enviar.'),
+                                  content: Text(vm.error ?? 'Error al enviar.'),
                                   backgroundColor: AppColors.error,
                                 ),
                               );

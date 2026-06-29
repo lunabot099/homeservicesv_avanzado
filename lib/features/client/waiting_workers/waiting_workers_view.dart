@@ -428,11 +428,14 @@ class _PostulacionCardState extends State<_PostulacionCard> {
     final s = widget.solicitud;
     if (s == null) return;
     final session = context.read<SessionController>();
+    final solicitudId = s.id;
+    final clienteId = session.currentUser?.id;
+    if (solicitudId == null || clienteId == null) return;
     context.push(
       '${RouteNames.clientChat}/new',
       extra: {
-        'solicitudId': s.id ?? 'mock',
-        'clienteId': session.currentUser?.id ?? 'mock',
+        'solicitudId': solicitudId,
+        'clienteId': clienteId,
         'trabajadorId': widget.postulacion.trabajadorId,
       },
     );

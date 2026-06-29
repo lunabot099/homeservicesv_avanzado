@@ -27,10 +27,13 @@ class ChatArgs {
   });
 
   static ChatArgs fromMap(Map<String, dynamic> m) => ChatArgs(
-        solicitudId: m['solicitudId'] as String? ?? 'mock',
-        clienteId: m['clienteId'] as String? ?? 'mock',
-        trabajadorId: m['trabajadorId'] as String? ?? 'mock',
+        solicitudId: m['solicitudId'] as String? ?? '',
+        clienteId: m['clienteId'] as String? ?? '',
+        trabajadorId: m['trabajadorId'] as String? ?? '',
       );
+
+  bool get isValid =>
+      solicitudId.isNotEmpty && clienteId.isNotEmpty && trabajadorId.isNotEmpty;
 }
 
 class ChatView extends StatefulWidget {
@@ -62,6 +65,7 @@ class _ChatViewState extends State<ChatView> {
         await _vm.initChatById(widget.chatId!);
       } else if (widget.args != null) {
         final a = widget.args!;
+        if (!a.isValid) return;
         await _vm.initChat(
           solicitudId: a.solicitudId,
           clienteId: a.clienteId,

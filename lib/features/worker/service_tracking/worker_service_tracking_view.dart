@@ -24,8 +24,7 @@ class WorkerServiceTrackingView extends StatefulWidget {
       _WorkerServiceTrackingViewState();
 }
 
-class _WorkerServiceTrackingViewState
-    extends State<WorkerServiceTrackingView> {
+class _WorkerServiceTrackingViewState extends State<WorkerServiceTrackingView> {
   late final WorkerServiceTrackingViewModel _vm;
 
   @override
@@ -59,18 +58,21 @@ class _WorkerServiceTrackingViewState
               title: const Text('Trabajo en curso'),
               backgroundColor: Colors.transparent,
               actions: [
-              // El chat es 1:1 con la solicitud; mostramos el botón si hay solicitud cargada.
+                // El chat es 1:1 con la solicitud; mostramos el botón si hay solicitud cargada.
                 if (s != null)
                   IconButton(
                     icon: const Icon(Icons.chat_rounded),
                     onPressed: () {
                       final session = context.read<SessionController>();
+                      final solicitudId = s.id;
+                      final trabajadorId = session.currentUser?.id;
+                      if (solicitudId == null || trabajadorId == null) return;
                       context.push(
-                        '${RouteNames.workerChat}/${s.id ?? 'new'}',
+                        '${RouteNames.workerChat}/$solicitudId',
                         extra: {
-                          'solicitudId': s.id ?? 'mock',
+                          'solicitudId': solicitudId,
                           'clienteId': s.clienteId,
-                          'trabajadorId': session.currentUser?.id ?? 'mock',
+                          'trabajadorId': trabajadorId,
                         },
                       );
                     },
@@ -225,15 +227,19 @@ class _ProgressTimeline extends StatelessWidget {
     (EstadoSolicitud.en_camino, Icons.directions_run_rounded, 'En camino'),
     (EstadoSolicitud.ha_llegado, Icons.location_on_rounded, 'Ha llegado'),
     (EstadoSolicitud.en_proceso, Icons.handyman_rounded, 'Trabajando'),
-    (EstadoSolicitud.finalizado_pendiente, Icons.done_all_rounded,
-        'Finalizado'),
+    (
+      EstadoSolicitud.finalizado_pendiente,
+      Icons.done_all_rounded,
+      'Finalizado'
+    ),
     (EstadoSolicitud.completada, Icons.star_rounded, 'Completado'),
   ];
 
   @override
   Widget build(BuildContext context) {
     final estadoOrden = EstadoSolicitud.values;
-    final currentIdx = estadoOrden.indexOf(vm.estadoActual ?? EstadoSolicitud.confirmada);
+    final currentIdx =
+        estadoOrden.indexOf(vm.estadoActual ?? EstadoSolicitud.confirmada);
 
     return Container(
       padding: const EdgeInsets.all(AppTheme.paddingMd),
@@ -315,8 +321,7 @@ class _ProgressTimeline extends StatelessWidget {
                     label,
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight:
-                          isCurrent ? FontWeight.w700 : FontWeight.w400,
+                      fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w400,
                       color: isDone ? AppColors.textPrimary : AppColors.grey400,
                     ),
                   ),
@@ -398,8 +403,7 @@ class _WaitingConfirmationBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.successLight,
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        border: Border.all(
-            color: AppColors.success.withValues(alpha: 0.4)),
+        border: Border.all(color: AppColors.success.withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [
@@ -466,24 +470,23 @@ class _ActionBar extends StatelessWidget {
             ),
 
           // Calificar al cliente (después de que el cliente confirme)
-          if (vm.estadoActual == EstadoSolicitud.completada) ...
-            [
-              const SizedBox(height: 12),
-              PrimaryButton(
-                label: 'Calificar al cliente',
-                icon: Icons.star_rounded,
-                backgroundColor: Colors.amber.shade700,
-                onPressed: () {
-                  context.push(
-                    '${RouteNames.workerRateClient}/${solicitud.id}',
-                    extra: {
-                      'solicitudId': solicitud.id,
-                      'clienteId': solicitud.clienteId,
-                    },
-                  );
-                },
-              ),
-            ],
+          if (vm.estadoActual == EstadoSolicitud.completada) ...[
+            const SizedBox(height: 12),
+            PrimaryButton(
+              label: 'Calificar al cliente',
+              icon: Icons.star_rounded,
+              backgroundColor: Colors.amber.shade700,
+              onPressed: () {
+                context.push(
+                  '${RouteNames.workerRateClient}/${solicitud.id}',
+                  extra: {
+                    'solicitudId': solicitud.id,
+                    'clienteId': solicitud.clienteId,
+                  },
+                );
+              },
+            ),
+          ],
 
           if (vm.trabajoFinalizado &&
               vm.estadoActual != EstadoSolicitud.completada)
@@ -492,8 +495,7 @@ class _ActionBar extends StatelessWidget {
               child: Text(
                 'Esperando que el cliente confirme la finalización',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: AppColors.textSecondary, fontSize: 12),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
               ),
             ),
         ],

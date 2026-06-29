@@ -227,10 +227,14 @@ class _HomeTab extends StatelessWidget {
                         horizontal: AppTheme.paddingLg, vertical: 6),
                     child: _SolicitudDisponibleCard(
                       solicitud: s,
-                      onTap: () => context.push(
-                        '${RouteNames.workerRequestDetail}/${s.id ?? 'mock'}',
-                        extra: s,
-                      ),
+                      onTap: () {
+                        final solicitudId = s.id;
+                        if (solicitudId == null) return;
+                        context.push(
+                          '${RouteNames.workerRequestDetail}/$solicitudId',
+                          extra: s,
+                        );
+                      },
                     ),
                   );
                 },

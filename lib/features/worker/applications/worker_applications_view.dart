@@ -70,9 +70,10 @@ class _ApplicationsContent extends StatelessWidget {
                           return _ApplicationCard(
                             item: item,
                             onTap: () {
-                              if (item.solicitud != null) {
+                              final solicitudId = item.solicitud?.id;
+                              if (solicitudId != null) {
                                 context.push(
-                                  '${RouteNames.workerRequestDetail}/${item.solicitud!.id ?? 'mock'}',
+                                  '${RouteNames.workerRequestDetail}/$solicitudId',
                                   extra: item.solicitud,
                                 );
                               }
@@ -89,9 +90,10 @@ class _ApplicationsContent extends StatelessWidget {
                               );
                             },
                             onTracking: () {
-                              if (item.solicitud != null) {
+                              final solicitudId = item.solicitud?.id;
+                              if (solicitudId != null) {
                                 context.push(
-                                  '${RouteNames.workerServiceTracking}/${item.solicitud!.id ?? 'mock'}',
+                                  '${RouteNames.workerServiceTracking}/$solicitudId',
                                   extra: item.solicitud,
                                 );
                               }

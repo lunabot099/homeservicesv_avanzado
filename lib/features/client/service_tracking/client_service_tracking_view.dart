@@ -113,11 +113,14 @@ class _ClientServiceTrackingViewState extends State<ClientServiceTrackingView> {
                                           onPressed: () async {
                                             await vm.finalizarTrabajo();
                                             if (context.mounted) {
+                                              final solicitudId = s!.id;
+                                              if (solicitudId == null) return;
+
                                               context.push(
-                                                '${RouteNames.clientRateWorker}/${s!.id ?? "mock"}',
+                                                '${RouteNames.clientRateWorker}/$solicitudId',
                                                 extra: {
                                                   'trabajador': w,
-                                                  'solicitudId': s.id ?? 'mock',
+                                                  'solicitudId': solicitudId,
                                                 },
                                               );
                                             }

@@ -50,6 +50,26 @@ import 'route_names.dart';
 class AppRouter {
   AppRouter._();
 
+  static Map<String, dynamic>? _extraMap(Object? extra) {
+    return extra is Map<String, dynamic> ? extra : null;
+  }
+
+  static T? _extra<T>(Object? extra) {
+    return extra is T ? extra : null;
+  }
+
+  static T? _extraValue<T>(Map<String, dynamic>? extra, String key) {
+    final value = extra?[key];
+    return value is T ? value : null;
+  }
+
+  static Widget _missingRouteData(String message) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(child: Text(message)),
+    );
+  }
+
   static GoRouter createRouter(BuildContext context) {
     final sessionController = context.read<SessionController>();
 
@@ -195,45 +215,52 @@ class AppRouter {
           path: RouteNames.clientRequestForm,
           name: 'clientRequestForm',
           builder: (context, state) => RequestFormView(
-            solicitud: state.extra as SolicitudServicioModel?,
+            solicitud: _extra<SolicitudServicioModel>(state.extra),
           ),
         ),
         GoRoute(
           path: RouteNames.clientRequestLocation,
           name: 'clientRequestLocation',
           builder: (context, state) => RequestLocationView(
-            solicitud: state.extra as SolicitudServicioModel?,
+            solicitud: _extra<SolicitudServicioModel>(state.extra),
           ),
         ),
         GoRoute(
           path: RouteNames.clientWaitingWorkers,
           name: 'clientWaitingWorkers',
           builder: (context, state) => WaitingWorkersView(
-            solicitud: state.extra as SolicitudServicioModel?,
+            solicitud: _extra<SolicitudServicioModel>(state.extra),
           ),
         ),
         GoRoute(
           path: RouteNames.clientWorkersCatalog,
           name: 'clientWorkersCatalog',
           builder: (context, state) => WorkersCatalogView(
-            solicitud: state.extra as SolicitudServicioModel?,
+            solicitud: _extra<SolicitudServicioModel>(state.extra),
           ),
         ),
         GoRoute(
           path: '${RouteNames.clientWorkerProfile}/:workerId',
           name: 'clientWorkerProfile',
-          builder: (context, state) => WorkerProfileDetailView(
-            worker: state.extra as WorkerCatalogItemModel,
-          ),
+          builder: (context, state) {
+            final worker = _extra<WorkerCatalogItemModel>(state.extra);
+            if (worker == null) {
+              return _missingRouteData(
+                  'No se encontró el perfil del trabajador.');
+            }
+            return WorkerProfileDetailView(worker: worker);
+          },
         ),
         GoRoute(
           path: RouteNames.clientBookingConfirmation,
           name: 'clientBookingConfirmation',
           builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>?;
+            final extra = _extraMap(state.extra);
             return BookingConfirmationView(
-              solicitud: extra?['solicitud'] as SolicitudServicioModel?,
-              trabajador: extra?['trabajador'] as WorkerCatalogItemModel?,
+              solicitud:
+                  _extraValue<SolicitudServicioModel>(extra, 'solicitud'),
+              trabajador:
+                  _extraValue<WorkerCatalogItemModel>(extra, 'trabajador'),
             );
           },
         ),
@@ -241,11 +268,13 @@ class AppRouter {
           path: '${RouteNames.clientServiceTracking}/:solicitudId',
           name: 'clientServiceTracking',
           builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>?;
+            final extra = _extraMap(state.extra);
             return ClientServiceTrackingView(
               solicitudId: state.pathParameters['solicitudId'],
-              solicitud: extra?['solicitud'] as SolicitudServicioModel?,
-              trabajador: extra?['trabajador'] as WorkerCatalogItemModel?,
+              solicitud:
+                  _extraValue<SolicitudServicioModel>(extra, 'solicitud'),
+              trabajador:
+                  _extraValue<WorkerCatalogItemModel>(extra, 'trabajador'),
             );
           },
         ),
@@ -253,9 +282,10 @@ class AppRouter {
           path: '${RouteNames.clientRateWorker}/:solicitudId',
           name: 'clientRateWorker',
           builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>?;
+            final extra = _extraMap(state.extra);
             return RateWorkerView(
-              trabajador: extra?['trabajador'] as WorkerCatalogItemModel?,
+              trabajador:
+                  _extraValue<WorkerCatalogItemModel>(extra, 'trabajador'),
               solicitudId: state.pathParameters['solicitudId'],
             );
           },
@@ -316,9 +346,13 @@ class AppRouter {
         GoRoute(
           path: '${RouteNames.workerRequestDetail}/:solicitudId',
           name: 'workerRequestDetail',
-          builder: (context, state) => WorkerRequestDetailView(
-            solicitud: state.extra as SolicitudServicioModel,
-          ),
+          builder: (context, state) {
+            final solicitud = _extra<SolicitudServicioModel>(state.extra);
+            if (solicitud == null) {
+              return _missingRouteData('No se encontró la solicitud.');
+            }
+            return WorkerRequestDetailView(solicitud: solicitud);
+          },
         ),
 
         /// Lista de postulaciones del trabajador
@@ -333,7 +367,7 @@ class AppRouter {
           path: '${RouteNames.workerConfirmedService}/:solicitudId',
           name: 'workerConfirmedService',
           builder: (context, state) => WorkerConfirmedServiceView(
-            solicitud: state.extra as SolicitudServicioModel?,
+            solicitud: _extra<SolicitudServicioModel>(state.extra),
           ),
         ),
 
@@ -342,7 +376,7 @@ class AppRouter {
           path: '${RouteNames.workerServiceTracking}/:solicitudId',
           name: 'workerServiceTracking',
           builder: (context, state) => WorkerServiceTrackingView(
-            solicitud: state.extra as SolicitudServicioModel?,
+            solicitud: _extra<SolicitudServicioModel>(state.extra),
           ),
         ),
 
@@ -351,11 +385,11 @@ class AppRouter {
           path: '${RouteNames.workerRateClient}/:solicitudId',
           name: 'workerRateClient',
           builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>?;
+            final extra = _extraMap(state.extra);
             return RateClientView(
-              solicitudId: extra?['solicitudId'] as String? ??
+              solicitudId: _extraValue<String>(extra, 'solicitudId') ??
                   state.pathParameters['solicitudId'],
-              clienteId: extra?['clienteId'] as String?,
+              clienteId: _extraValue<String>(extra, 'clienteId'),
             );
           },
         ),
@@ -384,7 +418,7 @@ class AppRouter {
           name: 'workerChat',
           builder: (context, state) {
             final chatId = state.pathParameters['chatId']!;
-            final extra = state.extra as Map<String, dynamic>?;
+            final extra = _extraMap(state.extra);
             // Si viene una solicitud, abrir/crear el chat asociado a esa solicitud.
             // Algunas pantallas antiguas envian solicitudId en la URL en lugar de chatId.
             if (extra != null && extra.containsKey('solicitudId')) {
@@ -404,7 +438,7 @@ class AppRouter {
           name: 'clientChat',
           builder: (context, state) {
             final chatId = state.pathParameters['chatId']!;
-            final extra = state.extra as Map<String, dynamic>?;
+            final extra = _extraMap(state.extra);
             if (extra != null && extra.containsKey('solicitudId')) {
               return ChatView(
                 args: ChatArgs.fromMap(extra),

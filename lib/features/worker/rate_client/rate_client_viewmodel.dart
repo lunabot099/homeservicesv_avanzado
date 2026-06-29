@@ -32,7 +32,8 @@ class RateClientViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get enviado => _enviado;
   String? get error => _error;
-  bool get puedeEnviar => _calificacion > 0;
+  bool get puedeEnviar =>
+      _calificacion > 0 && _solicitudId != null && _clienteId != null;
 
   void load({required String solicitudId, required String clienteId}) {
     _solicitudId = solicitudId;
@@ -65,6 +66,8 @@ class RateClientViewModel extends ChangeNotifier {
         _solicitudId == null ||
         _clienteId == null ||
         trabajadorId == null) {
+      _error = 'Faltan datos del servicio para enviar la calificación.';
+      notifyListeners();
       return false;
     }
 
