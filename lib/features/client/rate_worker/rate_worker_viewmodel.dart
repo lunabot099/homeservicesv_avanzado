@@ -27,6 +27,7 @@ class RateWorkerViewModel extends ChangeNotifier {
 
   double get calificacion => _calificacion;
   String get comentario => _comentario;
+  List<String> get preguntasRapidas => _preguntasRapidas;
   bool get guardarFavorito => _guardarFavorito;
   bool get isLoading => _isLoading;
   bool get enviado => _enviado;
@@ -62,7 +63,8 @@ class RateWorkerViewModel extends ChangeNotifier {
 
   void togglePreguntaRapida(String pregunta) {
     if (_preguntasRapidas.contains(pregunta)) {
-      _preguntasRapidas = _preguntasRapidas.where((p) => p != pregunta).toList();
+      _preguntasRapidas =
+          _preguntasRapidas.where((p) => p != pregunta).toList();
     } else {
       _preguntasRapidas = [..._preguntasRapidas, pregunta];
     }
@@ -70,7 +72,14 @@ class RateWorkerViewModel extends ChangeNotifier {
   }
 
   Future<bool> enviarCalificacion() async {
-    if (_calificacion == 0 || _solicitudId == null || _clienteId == null) return false;
+    if (_calificacion == 0 ||
+        _solicitudId == null ||
+        _clienteId == null ||
+        _trabajador == null) {
+      _error = 'Faltan datos del servicio para enviar la calificación.';
+      notifyListeners();
+      return false;
+    }
 
     _isLoading = true;
     _error = null;
@@ -92,7 +101,7 @@ class RateWorkerViewModel extends ChangeNotifier {
       _enviado = true;
       return true;
     } catch (e) {
-      _error = 'No se pudo enviar la calificación.';
+      _error = e.toString().replaceFirst('Exception: ', '');
       return false;
     } finally {
       _isLoading = false;

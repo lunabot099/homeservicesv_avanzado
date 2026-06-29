@@ -85,9 +85,10 @@ class _RateWorkerViewState extends State<RateWorkerView> {
                       const SizedBox(height: 24),
                       Text(
                         '¡Gracias por tu reseña!',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 12),
@@ -181,7 +182,7 @@ class _RateWorkerViewState extends State<RateWorkerView> {
                     spacing: 8,
                     runSpacing: 8,
                     children: _preguntasRapidas.map((p) {
-                      final selected = vm.comentario.contains(p); // simplificado
+                      final selected = vm.preguntasRapidas.contains(p);
                       return FilterChip(
                         label: Text(p),
                         selected: selected,
@@ -215,7 +216,8 @@ class _RateWorkerViewState extends State<RateWorkerView> {
                     value: vm.guardarFavorito,
                     onChanged: (_) => vm.toggleGuardarFavorito(),
                     title: const Text('Guardar como trabajador favorito'),
-                    subtitle: const Text('Podrás contratarlo fácilmente en el futuro'),
+                    subtitle: const Text(
+                        'Podrás contratarlo fácilmente en el futuro'),
                     contentPadding: EdgeInsets.zero,
                     activeColor: AppColors.primary,
                   ),
