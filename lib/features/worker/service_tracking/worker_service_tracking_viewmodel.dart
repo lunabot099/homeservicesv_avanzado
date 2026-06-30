@@ -16,6 +16,7 @@ class WorkerServiceTrackingViewModel extends ChangeNotifier {
   bool _isUpdating = false;
   String? _error;
   StreamSubscription<SolicitudServicioModel?>? _estadoSubscription;
+  Timer? _pollingTimer;
 
   WorkerServiceTrackingViewModel({
     SolicitudesRepository? solicitudesRepo,
@@ -58,15 +59,39 @@ class WorkerServiceTrackingViewModel extends ChangeNotifier {
     // Suscribir a cambios en tiempo real
     if (s.id != null) {
       _estadoSubscription?.cancel();
+      _pollingTimer?.cancel();
       _estadoSubscription =
           _solicitudesRepo.streamSolicitud(s.id!).listen((updated) {
         if (updated != null) {
           _solicitud = updated;
           notifyListeners();
         }
+      }, onError: (e) {
+        debugPrint('[WorkerTrackingVM] Error Realtime seguimiento: $e');
+      });
+
+      _pollingTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+        _refrescarSolicitud(s.id!);
       });
     }
     notifyListeners();
+  }
+
+  Future<void> _refrescarSolicitud(String solicitudId) async {
+    try {
+      final actualizada = await _solicitudesRepo.getSolicitudById(solicitudId);
+      if (actualizada == null) return;
+
+      final estadoCambio = _solicitud?.estado != actualizada.estado;
+      final trabajadorCambio =
+          _solicitud?.trabajadorId != actualizada.trabajadorId;
+      if (!estadoCambio && !trabajadorCambio) return;
+
+      _solicitud = actualizada;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[WorkerTrackingVM] Error refrescando seguimiento: $e');
+    }
   }
 
   /// Avanza al siguiente estado del servicio.
@@ -112,6 +137,7 @@ class WorkerServiceTrackingViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _estadoSubscription?.cancel();
+    _pollingTimer?.cancel();
     super.dispose();
   }
 }

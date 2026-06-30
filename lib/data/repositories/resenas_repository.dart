@@ -4,15 +4,36 @@ library;
 
 import '../models/resena_model.dart';
 import '../services/resenas_service.dart';
+import 'solicitudes_repository.dart';
 
 class ResenasRepository {
   final ResenasService _service;
+  final SolicitudesRepository _solicitudesRepository;
 
-  ResenasRepository({ResenasService? service})
-      : _service = service ?? ResenasService();
+  ResenasRepository({
+    ResenasService? service,
+    SolicitudesRepository? solicitudesRepository,
+  })  : _service = service ?? ResenasService(),
+        _solicitudesRepository =
+            solicitudesRepository ?? SolicitudesRepository();
 
   Future<ResenaModel> createResena(ResenaModel resena) async {
     try {
+      final solicitud =
+          await _solicitudesRepository.getSolicitudById(resena.solicitudId);
+      if (solicitud == null) {
+        throw Exception(
+          'No se encontró la solicitud real de este servicio. Vuelve al seguimiento e intenta calificar desde ahí.',
+        );
+      }
+
+      if (solicitud.clienteId != resena.clienteId ||
+          solicitud.trabajadorId != resena.trabajadorId) {
+        throw Exception(
+          'Los datos de la calificación no coinciden con el servicio confirmado.',
+        );
+      }
+
       // Verificar si ya calificó
       final yaExiste = await _service.yaCalificado(
         solicitudId: resena.solicitudId,
@@ -24,7 +45,8 @@ class ResenasRepository {
       }
       return await _service.createResena(resena);
     } catch (e) {
-      throw Exception('No se pudo guardar la reseña: ${e.toString().replaceFirst('Exception: ', '')}');
+      throw Exception(
+          'No se pudo guardar la reseña: ${e.toString().replaceFirst('Exception: ', '')}');
     }
   }
 
