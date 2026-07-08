@@ -41,14 +41,20 @@ class _RateWorkerViewState extends State<RateWorkerView> {
     super.initState();
     _vm = RateWorkerViewModel();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.trabajador != null) {
-        final session = context.read<SessionController>();
-        final solicitudId = widget.solicitudId;
-        final clienteId = session.currentUser?.id;
-        if (solicitudId == null || clienteId == null) return;
+      final session = context.read<SessionController>();
+      final solicitudId = widget.solicitudId;
+      final clienteId = session.currentUser?.id;
+      if (solicitudId == null || clienteId == null) return;
 
+      final trabajador = widget.trabajador;
+      if (trabajador != null) {
         _vm.load(
-          trabajador: widget.trabajador!,
+          trabajador: trabajador,
+          solicitudId: solicitudId,
+          clienteId: clienteId,
+        );
+      } else {
+        _vm.loadFromSolicitud(
           solicitudId: solicitudId,
           clienteId: clienteId,
         );

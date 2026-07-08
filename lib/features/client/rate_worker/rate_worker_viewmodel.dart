@@ -6,9 +6,11 @@ import 'package:flutter/foundation.dart';
 import '../../../data/models/resena_model.dart';
 import '../../../data/models/postulacion_solicitud_model.dart';
 import '../../../data/repositories/resenas_repository.dart';
+import '../../../data/repositories/solicitudes_repository.dart';
 
 class RateWorkerViewModel extends ChangeNotifier {
   final ResenasRepository _resenasRepository;
+  final SolicitudesRepository _solicitudesRepository;
 
   WorkerCatalogItemModel? _trabajador;
   String? _solicitudId;
@@ -22,8 +24,12 @@ class RateWorkerViewModel extends ChangeNotifier {
   bool _enviado = false;
   String? _error;
 
-  RateWorkerViewModel({ResenasRepository? resenasRepository})
-      : _resenasRepository = resenasRepository ?? ResenasRepository();
+  RateWorkerViewModel({
+    ResenasRepository? resenasRepository,
+    SolicitudesRepository? solicitudesRepository,
+  })  : _resenasRepository = resenasRepository ?? ResenasRepository(),
+        _solicitudesRepository =
+            solicitudesRepository ?? SolicitudesRepository();
 
   double get calificacion => _calificacion;
   String get comentario => _comentario;
@@ -48,6 +54,40 @@ class RateWorkerViewModel extends ChangeNotifier {
     _solicitudId = solicitudId;
     _clienteId = clienteId;
     notifyListeners();
+  }
+
+  Future<void> loadFromSolicitud({
+    required String solicitudId,
+    required String clienteId,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final solicitud =
+          await _solicitudesRepository.getSolicitudById(solicitudId);
+      final trabajadorId = solicitud?.trabajadorId;
+
+      if (trabajadorId == null || trabajadorId.isEmpty) {
+        _error =
+            'Esta solicitud no tiene un trabajador confirmado para calificar.';
+        return;
+      }
+
+      _trabajador = WorkerCatalogItemModel(
+        trabajadorId: trabajadorId,
+        nombre: 'Trabajador',
+        especialidad: solicitud?.categoriaId,
+      );
+      _solicitudId = solicitudId;
+      _clienteId = clienteId;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   void setCalificacion(double v) {

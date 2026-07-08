@@ -22,7 +22,8 @@ class PostulacionesRepository {
       }
       return await _service.create(p);
     } catch (e) {
-      throw Exception('Error al postularse: ${e.toString().replaceFirst('Exception: ', '')}');
+      throw Exception(
+          'Error al postularse: ${e.toString().replaceFirst('Exception: ', '')}');
     }
   }
 
@@ -43,6 +44,21 @@ class PostulacionesRepository {
       return await _service.getByTrabajador(trabajadorId);
     } catch (e) {
       throw Exception('Error al obtener mis postulaciones: $e');
+    }
+  }
+
+  /// Comprueba si el trabajador ya se postulo a una solicitud.
+  Future<bool> yaPostulado({
+    required String solicitudId,
+    required String trabajadorId,
+  }) async {
+    try {
+      return await _service.yaPostulado(
+        solicitudId: solicitudId,
+        trabajadorId: trabajadorId,
+      );
+    } catch (e) {
+      throw Exception('Error al validar postulación: $e');
     }
   }
 
@@ -91,7 +107,8 @@ class PostulacionesRepository {
         postulacionAceptadaId: postulacionId,
       );
     } catch (e) {
-      throw Exception('Error al aceptar trabajador: ${e.toString().replaceFirst('Exception: ', '')}');
+      throw Exception(
+          'Error al aceptar trabajador: ${e.toString().replaceFirst('Exception: ', '')}');
     }
   }
 }

@@ -35,9 +35,32 @@ class WorkerRequestDetailViewModel extends ChangeNotifier {
   double? get precioEstimado => _precioEstimado;
   String get mensajeInicial => _mensajeInicial;
 
-  void loadSolicitud(SolicitudServicioModel s) {
+  Future<void> loadSolicitud(SolicitudServicioModel s) async {
     _solicitud = s;
     notifyListeners();
+    await _verificarPostulacionExistente();
+  }
+
+  Future<void> _verificarPostulacionExistente() async {
+    final solicitudId = _solicitud?.id;
+    final trabajadorId = _sessionController.currentUser?.id;
+    if (solicitudId == null || trabajadorId == null) return;
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _yaPostulado = await _postulacionesRepo.yaPostulado(
+        solicitudId: solicitudId,
+        trabajadorId: trabajadorId,
+      );
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   void setPrecio(String v) {
@@ -53,6 +76,7 @@ class WorkerRequestDetailViewModel extends ChangeNotifier {
   /// Postula al trabajador a la solicitud actual.
   Future<bool> postularse() async {
     if (_solicitud == null) return false;
+    if (_yaPostulado) return true;
     final trabajadorId = _sessionController.currentUser?.id;
     if (trabajadorId == null) return false;
 

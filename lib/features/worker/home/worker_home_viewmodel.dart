@@ -8,10 +8,12 @@ import 'package:flutter/foundation.dart';
 import '../../../data/models/solicitud_servicio_model.dart';
 import '../../../data/models/perfil_model.dart';
 import '../../../data/repositories/solicitudes_repository.dart';
+import '../../../data/repositories/postulaciones_repository.dart';
 import '../../../state/session_controller.dart';
 
 class WorkerHomeViewModel extends ChangeNotifier {
   final SolicitudesRepository _solicitudesRepo;
+  final PostulacionesRepository _postulacionesRepo;
   final SessionController _sessionController;
 
   List<SolicitudServicioModel> _solicitudesDisponibles = [];
@@ -24,8 +26,10 @@ class WorkerHomeViewModel extends ChangeNotifier {
 
   WorkerHomeViewModel({
     SolicitudesRepository? solicitudesRepo,
+    PostulacionesRepository? postulacionesRepo,
     required SessionController sessionController,
   })  : _solicitudesRepo = solicitudesRepo ?? SolicitudesRepository(),
+        _postulacionesRepo = postulacionesRepo ?? PostulacionesRepository(),
         _sessionController = sessionController;
 
   PerfilModel? get perfil => _sessionController.currentPerfil;
@@ -53,9 +57,9 @@ class WorkerHomeViewModel extends ChangeNotifier {
     }
 
     try {
-      // TODO: Filtrar por departamento del trabajador cuando esté disponible
+      final solicitudes = await _solicitudesRepo.getSolicitudesDisponibles();
       _solicitudesDisponibles =
-          await _solicitudesRepo.getSolicitudesDisponibles();
+          await _filtrarSolicitudesYaPostuladas(solicitudes);
       _error = null;
     } catch (e) {
       // En modo desarrollo, usar mocks
@@ -75,7 +79,7 @@ class WorkerHomeViewModel extends ChangeNotifier {
     _solicitudesSub = solicitudesStream.listen(
       (nuevas) {
         _streamActivo = true;
-        onNuevaSolicitud(nuevas);
+        unawaited(onNuevaSolicitud(nuevas));
       },
       onError: (e) {
         debugPrint('[WorkerHomeVM] Error Realtime: $e');
@@ -99,10 +103,30 @@ class WorkerHomeViewModel extends ChangeNotifier {
   }
 
   /// Actualiza la lista en tiempo real (llamado desde el stream Realtime).
-  void onNuevaSolicitud(List<SolicitudServicioModel> nuevas) {
-    _solicitudesDisponibles = nuevas;
-    _error = null;
+  Future<void> onNuevaSolicitud(List<SolicitudServicioModel> nuevas) async {
+    try {
+      _solicitudesDisponibles = await _filtrarSolicitudesYaPostuladas(nuevas);
+      _error = null;
+    } catch (e) {
+      debugPrint('[WorkerHomeVM] Error filtrando postulaciones: $e');
+      _solicitudesDisponibles = nuevas;
+    }
     notifyListeners();
+  }
+
+  Future<List<SolicitudServicioModel>> _filtrarSolicitudesYaPostuladas(
+    List<SolicitudServicioModel> solicitudes,
+  ) async {
+    final trabajadorId = _sessionController.currentUser?.id;
+    if (trabajadorId == null || solicitudes.isEmpty) return solicitudes;
+
+    final postulaciones =
+        await _postulacionesRepo.getMisPostulaciones(trabajadorId);
+    final solicitudesPostuladas =
+        postulaciones.map((p) => p.solicitudId).toSet();
+    return solicitudes
+        .where((s) => s.id == null || !solicitudesPostuladas.contains(s.id))
+        .toList();
   }
 
   /// [Realtime] Suscripción a nuevas solicitudes disponibles.

@@ -125,31 +125,57 @@ class _DetailContent extends StatelessWidget {
           const Divider(),
           const SizedBox(height: 20),
 
-          // ── Precio ofertado (opcional) ────────────────────────
-          Text('Tu oferta (opcional)',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 10),
-          TextFormField(
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Precio que cobrarías (\$)',
-              prefixIcon: Icon(Icons.attach_money_rounded),
+          if (!vm.yaPostulado) ...[
+            Text('Tu oferta (opcional)',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 10),
+            TextFormField(
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Precio que cobrarías (\$)',
+                prefixIcon: Icon(Icons.attach_money_rounded),
+              ),
+              onChanged: vm.setPrecio,
             ),
-            onChanged: vm.setPrecio,
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Mensaje inicial al cliente (opcional)',
-              alignLabelWithHint: true,
-              prefixIcon: Icon(Icons.chat_outlined),
+            const SizedBox(height: 12),
+            TextFormField(
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Mensaje inicial al cliente (opcional)',
+                alignLabelWithHint: true,
+                prefixIcon: Icon(Icons.chat_outlined),
+              ),
+              onChanged: vm.setMensaje,
             ),
-            onChanged: vm.setMensaje,
-          ),
+          ] else ...[
+            Container(
+              padding: const EdgeInsets.all(AppTheme.paddingMd),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(
+                  color: AppColors.workerRole.withValues(alpha: 0.35),
+                ),
+              ),
+              child: Row(children: [
+                const Icon(Icons.assignment_turned_in_rounded,
+                    color: AppColors.workerRole),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Ya te postulaste a esta solicitud. Puedes revisar el estado en tus postulaciones.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.workerRole,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ),
+              ]),
+            ),
+          ],
 
           const SizedBox(height: 28),
 
