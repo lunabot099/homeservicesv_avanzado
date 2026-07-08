@@ -12,6 +12,7 @@ import '../../../core/widgets/service_tag.dart';
 import '../../../data/models/solicitud_servicio_model.dart';
 import '../../../data/models/postulacion_solicitud_model.dart';
 import '../../../data/models/reporte_servicio_model.dart';
+import '../../../state/session_controller.dart';
 import 'client_service_tracking_viewmodel.dart';
 
 class ClientServiceTrackingView extends StatefulWidget {
@@ -102,7 +103,11 @@ class _ClientServiceTrackingViewState extends State<ClientServiceTrackingView> {
                                             vm.updateEstado(estado),
                                       ),
                                     const SizedBox(height: 20),
-                                    if (w != null) _WorkerInfoCard(worker: w),
+                                    if (w != null && s != null)
+                                      _WorkerInfoCard(
+                                        worker: w,
+                                        solicitud: s,
+                                      ),
                                     const SizedBox(height: 20),
                                     if (s?.estado ==
                                         EstadoSolicitud
@@ -311,8 +316,12 @@ class _StatusTimeline extends StatelessWidget {
 
 class _WorkerInfoCard extends StatelessWidget {
   final WorkerCatalogItemModel worker;
+  final SolicitudServicioModel solicitud;
 
-  const _WorkerInfoCard({required this.worker});
+  const _WorkerInfoCard({
+    required this.worker,
+    required this.solicitud,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -361,8 +370,23 @@ class _WorkerInfoCard extends StatelessWidget {
             ),
           ),
           IconButton(
-            onPressed: () {}, // TODO: Chat directo Fase 3
+            onPressed: () {
+              final session = context.read<SessionController>();
+              final solicitudId = solicitud.id;
+              final clienteId = session.currentUser?.id ?? solicitud.clienteId;
+              if (solicitudId == null || clienteId.isEmpty) return;
+
+              context.push(
+                '${RouteNames.clientChat}/$solicitudId',
+                extra: {
+                  'solicitudId': solicitudId,
+                  'clienteId': clienteId,
+                  'trabajadorId': worker.trabajadorId,
+                },
+              );
+            },
             icon: const Icon(Icons.chat_rounded, color: AppColors.primary),
+            tooltip: 'Chat con trabajador',
           ),
         ],
       ),

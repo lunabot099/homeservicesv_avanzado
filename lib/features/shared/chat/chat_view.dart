@@ -168,7 +168,8 @@ class _ChatViewState extends State<ChatView> {
                             )
                           : ListView.builder(
                               controller: _scrollCtrl,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              padding:
+                                  const EdgeInsets.fromLTRB(12, 12, 12, 16),
                               itemCount: vm.mensajes.length,
                               itemBuilder: (context, i) {
                                 final msg = vm.mensajes[i];
@@ -176,6 +177,8 @@ class _ChatViewState extends State<ChatView> {
                                     !_sameDay(msg.creadoEn,
                                         vm.mensajes[i - 1].creadoEn);
                                 return Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: [
                                     if (showDate) _DateSeparator(msg.creadoEn),
                                     _MessageBubble(
@@ -243,7 +246,7 @@ class _DateSeparator extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
       child: Row(
         children: [
           const Expanded(child: Divider()),
@@ -296,49 +299,70 @@ class _MessageBubble extends StatelessWidget {
     }
 
     // ── Burbuja normal ─────────────────────────────────────
-    return Padding(
-      padding: EdgeInsets.only(
-        left: isMine ? 64 : 16,
-        right: isMine ? 16 : 64,
-        top: 3,
-        bottom: 3,
-      ),
-      child: Column(
-        crossAxisAlignment:
-            isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: msg.tipo == TipoMensaje.imagen
-                ? EdgeInsets.zero
-                : const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: isMine
-                  ? AppColors.primary.withValues(alpha: 0.9)
-                  : AppColors.surface,
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(AppTheme.radiusLg),
-                topRight: const Radius.circular(AppTheme.radiusLg),
-                bottomLeft: Radius.circular(isMine ? AppTheme.radiusLg : 4),
-                bottomRight: Radius.circular(isMine ? 4 : AppTheme.radiusLg),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxBubbleWidth = constraints.maxWidth * 0.76;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Align(
+            alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxBubbleWidth),
+              child: Column(
+                crossAxisAlignment:
+                    isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: msg.tipo == TipoMensaje.imagen
+                        ? EdgeInsets.zero
+                        : const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 9,
+                          ),
+                    decoration: BoxDecoration(
+                      color: isMine
+                          ? AppColors.primary.withValues(alpha: 0.95)
+                          : AppColors.surface,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(18),
+                        topRight: const Radius.circular(18),
+                        bottomLeft: Radius.circular(isMine ? 18 : 5),
+                        bottomRight: Radius.circular(isMine ? 5 : 18),
+                      ),
+                      border:
+                          isMine ? null : Border.all(color: AppColors.border),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.shadowColor.withValues(alpha: 0.08),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: _buildContent(isMine),
+                  ),
+                  const SizedBox(height: 2),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: isMine ? 0 : 6,
+                      right: isMine ? 6 : 0,
+                    ),
+                    child: Text(
+                      _hora(msg.creadoEn),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppColors.textHint,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              border: isMine ? null : Border.all(color: AppColors.border),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.shadowColor,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
             ),
-            child: _buildContent(isMine),
           ),
-          const SizedBox(height: 2),
-          Text(
-            _hora(msg.creadoEn),
-            style: const TextStyle(fontSize: 10, color: AppColors.textHint),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -363,6 +387,7 @@ class _MessageBubble extends StatelessWidget {
           style: TextStyle(
             color: isMine ? Colors.white : AppColors.textPrimary,
             fontSize: 14,
+            height: 1.25,
           ),
         );
     }
