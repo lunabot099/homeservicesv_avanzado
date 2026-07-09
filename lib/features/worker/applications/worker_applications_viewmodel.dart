@@ -18,6 +18,31 @@ class ApplicationItem {
   final SolicitudServicioModel? solicitud;
 
   const ApplicationItem({required this.postulacion, this.solicitud});
+
+  bool get estaEnProceso {
+    if (postulacion.estado != EstadoPostulacion.aceptada) return false;
+
+    switch (solicitud?.estado) {
+      case EstadoSolicitud.confirmada:
+      case EstadoSolicitud.en_camino:
+      case EstadoSolicitud.ha_llegado:
+      case EstadoSolicitud.en_proceso:
+      case EstadoSolicitud.finalizado_pendiente:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool get estaFinalizada => solicitud?.estado == EstadoSolicitud.completada;
+}
+
+enum WorkerApplicationsFilter {
+  enProceso,
+  pendiente,
+  rechazada,
+  finalizada,
+  todas,
 }
 
 class WorkerApplicationsViewModel extends ChangeNotifier {
@@ -26,7 +51,7 @@ class WorkerApplicationsViewModel extends ChangeNotifier {
   final SessionController _sessionController;
 
   List<ApplicationItem> _items = [];
-  EstadoPostulacion? _filtroEstado;
+  WorkerApplicationsFilter _filtro = WorkerApplicationsFilter.enProceso;
   bool _isLoading = false;
   String? _error;
   StreamSubscription<List<PostulacionSolicitudModel>>? _streamSub;
@@ -39,17 +64,33 @@ class WorkerApplicationsViewModel extends ChangeNotifier {
         _solicitudesRepo = solicitudesRepo ?? SolicitudesRepository(),
         _sessionController = sessionController;
 
-  List<ApplicationItem> get items => _filtroEstado == null
-      ? _items
-      : _items
-          .where((i) => i.postulacion.estado == _filtroEstado)
-          .toList();
-  EstadoPostulacion? get filtroEstado => _filtroEstado;
+  List<ApplicationItem> get items {
+    switch (_filtro) {
+      case WorkerApplicationsFilter.enProceso:
+        return _items.where((i) => i.estaEnProceso).toList();
+      case WorkerApplicationsFilter.pendiente:
+        return _items
+            .where((i) => i.postulacion.estado == EstadoPostulacion.pendiente)
+            .toList();
+      case WorkerApplicationsFilter.rechazada:
+        return _items
+            .where((i) =>
+                i.postulacion.estado == EstadoPostulacion.rechazada ||
+                i.postulacion.estado == EstadoPostulacion.cancelada)
+            .toList();
+      case WorkerApplicationsFilter.finalizada:
+        return _items.where((i) => i.estaFinalizada).toList();
+      case WorkerApplicationsFilter.todas:
+        return _items;
+    }
+  }
+
+  WorkerApplicationsFilter get filtro => _filtro;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  void setFiltro(EstadoPostulacion? estado) {
-    _filtroEstado = estado;
+  void setFiltro(WorkerApplicationsFilter filtro) {
+    _filtro = filtro;
     notifyListeners();
   }
 
@@ -83,21 +124,19 @@ class WorkerApplicationsViewModel extends ChangeNotifier {
   /// la pantalla del trabajador se actualice automáticamente.
   void _suscribirRealtime(String trabajadorId) {
     _streamSub?.cancel();
-    _streamSub = _postulacionesRepo
-        .streamMisPostulaciones(trabajadorId)
-        .listen(
-          (postulaciones) async {
-            _items = await _buildItems(postulaciones);
-            notifyListeners();
-          },
-          onError: (e) {
-            debugPrint('[WorkerApplicationsVM] Error Realtime: $e');
-          },
-        );
+    _streamSub = _postulacionesRepo.streamMisPostulaciones(trabajadorId).listen(
+      (postulaciones) async {
+        _items = await _buildItems(postulaciones);
+        notifyListeners();
+      },
+      onError: (e) {
+        debugPrint('[WorkerApplicationsVM] Error Realtime: $e');
+      },
+    );
   }
 
   /// Convierte postulaciones a items enriquecidos con su solicitud.
-  /// Ordena: aceptada → pendiente → rechazada/cancelada.
+  /// Ordena: en proceso → pendiente → finalizadas → rechazadas/canceladas.
   Future<List<ApplicationItem>> _buildItems(
       List<PostulacionSolicitudModel> postulaciones) async {
     final futures = postulaciones.map((p) async {
@@ -112,18 +151,27 @@ class WorkerApplicationsViewModel extends ChangeNotifier {
     final items = await Future.wait(futures);
 
     items.sort((a, b) {
-      int priority(EstadoPostulacion e) {
-        switch (e) {
-          case EstadoPostulacion.aceptada:
-            return 0;
-          case EstadoPostulacion.pendiente:
-            return 1;
-          default:
-            return 2;
-        }
+      int priority(ApplicationItem item) {
+        if (item.estaEnProceso) return 0;
+        if (item.postulacion.estado == EstadoPostulacion.pendiente) return 1;
+        if (item.estaFinalizada) return 2;
+        return 3;
       }
-      return priority(a.postulacion.estado)
-          .compareTo(priority(b.postulacion.estado));
+
+      final byPriority = priority(a).compareTo(priority(b));
+      if (byPriority != 0) return byPriority;
+
+      final aDate = a.solicitud?.fechaActualizacion ??
+          a.solicitud?.fechaCreacion ??
+          a.postulacion.fechaCreacion;
+      final bDate = b.solicitud?.fechaActualizacion ??
+          b.solicitud?.fechaCreacion ??
+          b.postulacion.fechaCreacion;
+
+      if (aDate == null && bDate == null) return 0;
+      if (aDate == null) return 1;
+      if (bDate == null) return -1;
+      return bDate.compareTo(aDate);
     });
 
     return items;

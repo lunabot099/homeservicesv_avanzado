@@ -114,11 +114,12 @@ class _FilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filtros = <(String, EstadoPostulacion?)>[
-      ('Todas', null),
-      ('Pendiente', EstadoPostulacion.pendiente),
-      ('Aceptadas', EstadoPostulacion.aceptada),
-      ('Rechazadas', EstadoPostulacion.rechazada),
+    final filtros = <(String, WorkerApplicationsFilter)>[
+      ('En proceso', WorkerApplicationsFilter.enProceso),
+      ('Pendiente', WorkerApplicationsFilter.pendiente),
+      ('Rechazadas', WorkerApplicationsFilter.rechazada),
+      ('Finalizadas', WorkerApplicationsFilter.finalizada),
+      ('Todas', WorkerApplicationsFilter.todas),
     ];
 
     return Container(
@@ -128,14 +129,14 @@ class _FilterChips extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: filtros.map((f) {
-            final (label, estado) = f;
-            final selected = vm.filtroEstado == estado;
+            final (label, filtro) = f;
+            final selected = vm.filtro == filtro;
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: FilterChip(
                 label: Text(label),
                 selected: selected,
-                onSelected: (_) => vm.setFiltro(estado),
+                onSelected: (_) => vm.setFiltro(filtro),
                 selectedColor: AppColors.workerRole.withValues(alpha: 0.15),
                 checkmarkColor: AppColors.workerRole,
                 labelStyle: TextStyle(
@@ -166,9 +167,10 @@ class _ApplicationCard extends StatelessWidget {
   });
 
   Color get _estadoColor {
+    if (item.estaFinalizada) return AppColors.success;
+    if (item.estaEnProceso) return AppColors.workerRole;
+
     switch (item.postulacion.estado) {
-      case EstadoPostulacion.aceptada:
-        return AppColors.workerRole;
       case EstadoPostulacion.rechazada:
         return AppColors.error;
       case EstadoPostulacion.cancelada:
@@ -179,9 +181,12 @@ class _ApplicationCard extends StatelessWidget {
   }
 
   String get _estadoLabel {
+    if (item.estaFinalizada) return 'Finalizada';
+    if (item.estaEnProceso) return 'En proceso';
+
     switch (item.postulacion.estado) {
       case EstadoPostulacion.aceptada:
-        return 'Seleccionado ✓';
+        return 'Seleccionado';
       case EstadoPostulacion.rechazada:
         return 'Rechazado';
       case EstadoPostulacion.cancelada:
@@ -266,13 +271,13 @@ class _ApplicationCard extends StatelessWidget {
           child: Row(children: [
             _ActionBtn(
                 icon: Icons.visibility_outlined, label: 'Ver', onTap: onTap),
-            if (item.postulacion.estado == EstadoPostulacion.aceptada) ...[
+            if (item.estaEnProceso) ...[
               const SizedBox(width: 8),
               _ActionBtn(
                   icon: Icons.chat_outlined, label: 'Chat', onTap: onChat),
             ],
             const SizedBox(width: 8),
-            if (item.postulacion.estado == EstadoPostulacion.aceptada)
+            if (item.estaEnProceso)
               _ActionBtn(
                   icon: Icons.route_rounded,
                   label: 'Seguimiento',
