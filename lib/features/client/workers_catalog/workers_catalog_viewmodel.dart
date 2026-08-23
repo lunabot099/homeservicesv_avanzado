@@ -10,7 +10,12 @@ import '../../../data/models/solicitud_servicio_model.dart';
 import '../../../data/repositories/perfiles_repository.dart';
 import '../../../data/repositories/postulaciones_repository.dart';
 
-enum CatalogFilter { mejorCalificados, masCercanos, menorPrecio, mayorExperiencia }
+enum CatalogFilter {
+  mejorCalificados,
+  masCercanos,
+  menorPrecio,
+  mayorExperiencia
+}
 
 class WorkersCatalogViewModel extends ChangeNotifier {
   final PostulacionesRepository _postulacionesRepo;
@@ -47,8 +52,8 @@ class WorkersCatalogViewModel extends ChangeNotifier {
     try {
       if (solicitud.id != null) {
         // Obtener postulaciones reales de la solicitud
-        final postulaciones = await _postulacionesRepo
-            .getPostulacionesDeSolicitud(solicitud.id!);
+        final postulaciones =
+            await _postulacionesRepo.getPostulacionesDeSolicitud(solicitud.id!);
 
         if (postulaciones.isNotEmpty) {
           // Cargar perfiles en paralelo para obtener nombre y foto reales
@@ -107,13 +112,12 @@ class WorkersCatalogViewModel extends ChangeNotifier {
       case CatalogFilter.mejorCalificados:
         sorted.sort((a, b) => b.calificacion.compareTo(a.calificacion));
       case CatalogFilter.masCercanos:
-        sorted.sort((a, b) =>
-            (a.distanciaKm ?? 999).compareTo(b.distanciaKm ?? 999));
+        sorted.sort(
+            (a, b) => (a.distanciaKm ?? 999).compareTo(b.distanciaKm ?? 999));
       case CatalogFilter.menorPrecio:
         sorted.sort((a, b) => (a.tarifa ?? 999).compareTo(b.tarifa ?? 999));
       case CatalogFilter.mayorExperiencia:
-        sorted.sort((a, b) =>
-            b.cantidadResenas.compareTo(a.cantidadResenas));
+        sorted.sort((a, b) => b.cantidadResenas.compareTo(a.cantidadResenas));
     }
     return sorted;
   }

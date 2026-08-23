@@ -1,4 +1,4 @@
-name: Deploy Flutter Web to GitHub Pages
+name: Publicar Flutter Web en GitHub Pages
 
 on:
   push:
@@ -14,16 +14,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Descargar el repositorio
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: Configurar Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - name: Create production env file
+      - name: Crear el archivo de entorno para producción
         run: |
+          # Normaliza la URL por si el Secret incluye una barra final o /rest/v1.
           SUPABASE_URL="${{ secrets.SUPABASE_URL }}"
           SUPABASE_URL="${SUPABASE_URL%/}"
           SUPABASE_URL="${SUPABASE_URL%/rest/v1}"
@@ -37,19 +38,19 @@ jobs:
             echo "BUCKET_CHAT_IMAGENES=chat-imagenes"
           } > .env
 
-      - name: Install dependencies
+      - name: Instalar dependencias
         run: flutter pub get
 
-      - name: Analyze
+      - name: Analizar el código
         run: flutter analyze --no-fatal-infos
 
-      - name: Build web
+      - name: Compilar la versión web
         run: flutter build web --release --base-href /homeservicesv_avanzado/
 
-      - name: Allow GitHub Pages to serve Flutter assets
+      - name: Permitir que GitHub Pages sirva los recursos de Flutter
         run: touch build/web/.nojekyll
 
-      - name: Deploy to gh-pages
+      - name: Publicar en gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -49,7 +49,8 @@ class _ClientChangePasswordViewState extends State<ClientChangePasswordView> {
       _newPassCtrl.clear();
       _confirmCtrl.clear();
     } catch (e) {
-      setState(() => _error = 'No se pudo actualizar la contraseña. Intenta de nuevo.');
+      setState(() =>
+          _error = 'No se pudo actualizar la contraseña. Intenta de nuevo.');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -93,9 +94,8 @@ class _ClientChangePasswordViewState extends State<ClientChangePasswordView> {
                 obscureText: _obscureNew,
                 prefixIcon: const Icon(Icons.lock_outline_rounded),
                 textInputAction: TextInputAction.next,
-                validator: (v) => (v == null || v.length < 6)
-                    ? 'Mínimo 6 caracteres'
-                    : null,
+                validator: (v) =>
+                    (v == null || v.length < 6) ? 'Mínimo 6 caracteres' : null,
                 suffixIcon: IconButton(
                   icon: Icon(_obscureNew
                       ? Icons.visibility_outlined
@@ -136,8 +136,8 @@ class _ClientChangePasswordViewState extends State<ClientChangePasswordView> {
                     const SizedBox(width: 8),
                     Expanded(
                         child: Text(_error!,
-                            style:
-                                const TextStyle(color: AppColors.error, fontSize: 13))),
+                            style: const TextStyle(
+                                color: AppColors.error, fontSize: 13))),
                   ]),
                 ),
               ],

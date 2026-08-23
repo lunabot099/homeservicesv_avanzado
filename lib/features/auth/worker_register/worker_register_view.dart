@@ -67,9 +67,8 @@ class _WorkerRegisterContentState extends State<_WorkerRegisterContent> {
       nombreCompleto: _nombreCtrl.text.trim(),
       correo: _emailCtrl.text.trim(),
       password: _passwordCtrl.text,
-      telefono: _telefonoCtrl.text.trim().isEmpty
-          ? null
-          : _telefonoCtrl.text.trim(),
+      telefono:
+          _telefonoCtrl.text.trim().isEmpty ? null : _telefonoCtrl.text.trim(),
     );
 
     if (!success || !mounted) return;
@@ -227,7 +226,8 @@ class _WorkerRegisterContentState extends State<_WorkerRegisterContent> {
                         Expanded(
                           child: Text(
                             'Cuenta creada. Confirma tu correo y luego inicia sesión.',
-                            style: TextStyle(color: AppColors.info, fontSize: 13),
+                            style:
+                                TextStyle(color: AppColors.info, fontSize: 13),
                           ),
                         ),
                       ],
@@ -288,10 +288,11 @@ class _WorkerRegisterContentState extends State<_WorkerRegisterContent> {
                         onTap: () => context.pop(),
                         child: Text(
                           'Inicia sesión',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.workerRole,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.workerRole,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
                       ),
                     ],

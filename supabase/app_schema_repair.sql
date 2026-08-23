@@ -1,6 +1,6 @@
--- HomeServiceSV - schema repair for the Flutter app.
--- Run this in Supabase SQL Editor for the same project used in .env.
--- It is intentionally idempotent: it creates missing objects and adds missing columns.
+-- HomeServiceSV: reparación consolidada del esquema utilizado por Flutter.
+-- Ejecutar en SQL Editor del mismo proyecto configurado en .env.
+-- Es idempotente: crea objetos ausentes y agrega columnas faltantes sin borrar datos.
 
 begin;
 
@@ -44,7 +44,7 @@ create trigger perfiles_set_fecha_actualizacion
 before update on public.perfiles
 for each row execute function public.set_fecha_actualizacion();
 
--- worker_profiles
+-- Perfil profesional y estado de verificación del trabajador.
 create table if not exists public.worker_profiles (
   id uuid primary key references public.perfiles(id) on delete cascade,
   dui text,
@@ -228,7 +228,7 @@ create trigger postulaciones_solicitud_set_fecha_actualizacion
 before update on public.postulaciones_solicitud
 for each row execute function public.set_fecha_actualizacion();
 
--- chats and mensajes_chat
+-- Conversaciones y mensajes asociados a una solicitud confirmada.
 create table if not exists public.chats (
   id uuid primary key default gen_random_uuid(),
   solicitud_id uuid not null references public.solicitudes_servicio(id) on delete cascade,
@@ -356,6 +356,8 @@ create policy chats_update_participants on public.chats for update to authentica
 drop policy if exists mensajes_select_chat_participants on public.mensajes_chat;
 create policy mensajes_select_chat_participants on public.mensajes_chat for select to authenticated using (exists (select 1 from public.chats c where c.id = chat_id and (c.cliente_id = auth.uid() or c.trabajador_id = auth.uid())));
 drop policy if exists mensajes_insert_chat_participants on public.mensajes_chat;
+-- `system` es solo una etiqueta admitida para eventos automáticos; no demuestra
+-- que el mensaje provenga de un backend confiable porque lo inserta un participante.
 create policy mensajes_insert_chat_participants on public.mensajes_chat for insert to authenticated with check ((emisor_id = auth.uid()::text or emisor_id = 'system') and exists (select 1 from public.chats c where c.id = chat_id and (c.cliente_id = auth.uid() or c.trabajador_id = auth.uid())));
 drop policy if exists mensajes_update_chat_participants on public.mensajes_chat;
 create policy mensajes_update_chat_participants on public.mensajes_chat for update to authenticated using (exists (select 1 from public.chats c where c.id = chat_id and (c.cliente_id = auth.uid() or c.trabajador_id = auth.uid()))) with check (exists (select 1 from public.chats c where c.id = chat_id and (c.cliente_id = auth.uid() or c.trabajador_id = auth.uid())));
@@ -365,7 +367,7 @@ create policy resenas_select_authenticated on public.resenas for select to authe
 drop policy if exists resenas_insert_emisor on public.resenas;
 create policy resenas_insert_emisor on public.resenas for insert to authenticated with check (emisor_id = auth.uid());
 
--- Storage buckets. DUI and antecedentes are private because they are sensitive.
+-- Buckets de Storage. DUI y antecedentes son privados por contener datos sensibles.
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values
   ('perfil-fotos', 'perfil-fotos', true, 5242880, array['image/jpeg','image/png','image/webp']),
@@ -388,6 +390,8 @@ drop policy if exists storage_update_own_profile_and_docs on storage.objects;
 create policy storage_update_own_profile_and_docs on storage.objects for update to authenticated using (bucket_id in ('perfil-fotos', 'dui-documentos', 'antecedentes-documentos') and (storage.foldername(name))[1] = auth.uid()::text) with check (bucket_id in ('perfil-fotos', 'dui-documentos', 'antecedentes-documentos') and (storage.foldername(name))[1] = auth.uid()::text);
 drop policy if exists storage_delete_own_profile_and_docs on storage.objects;
 create policy storage_delete_own_profile_and_docs on storage.objects for delete to authenticated using (bucket_id in ('perfil-fotos', 'dui-documentos', 'antecedentes-documentos') and (storage.foldername(name))[1] = auth.uid()::text);
+-- Advertencia: estas políticas compartidas no validan propietario ni ruta.
+-- Cualquier usuario autenticado puede modificar o eliminar objetos de ambos buckets.
 drop policy if exists storage_upload_app_shared_images on storage.objects;
 create policy storage_upload_app_shared_images on storage.objects for insert to authenticated with check (bucket_id in ('solicitudes-imagenes', 'chat-imagenes'));
 drop policy if exists storage_update_app_shared_images on storage.objects;

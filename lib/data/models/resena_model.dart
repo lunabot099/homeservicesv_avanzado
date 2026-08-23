@@ -14,8 +14,9 @@ enum TipoResena {
       ? TipoResena.trabajadorACliente
       : TipoResena.clienteATrabajador;
 
-  String get dbValue =>
-      this == TipoResena.trabajadorACliente ? 'trabajador_a_cliente' : 'cliente_a_trabajador';
+  String get dbValue => this == TipoResena.trabajadorACliente
+      ? 'trabajador_a_cliente'
+      : 'cliente_a_trabajador';
 }
 
 class ResenaModel {
@@ -23,6 +24,7 @@ class ResenaModel {
   final String solicitudId;
   final String clienteId;
   final String trabajadorId;
+
   /// Quien emite la reseña (clienteId o trabajadorId dependiendo del tipo)
   final String emisorId;
   final TipoResena tipo;
@@ -51,7 +53,8 @@ class ResenaModel {
       clienteId: map['cliente_id'] as String,
       trabajadorId: map['trabajador_id'] as String,
       emisorId: map['emisor_id'] as String? ?? map['cliente_id'] as String,
-      tipo: TipoResena.fromString(map['tipo'] as String? ?? 'cliente_a_trabajador'),
+      tipo: TipoResena.fromString(
+          map['tipo'] as String? ?? 'cliente_a_trabajador'),
       calificacion: (map['calificacion'] as num?)?.toDouble() ?? 5.0,
       comentario: map['comentario'] as String?,
       preguntasRapidas: (map['preguntas_rapidas'] as List?)?.cast<String>(),

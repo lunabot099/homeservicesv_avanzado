@@ -8,16 +8,35 @@ import '../../../data/models/solicitud_servicio_model.dart';
 /// Departamentos de El Salvador con sus municipios.
 const Map<String, List<String>> departamentosMunicipios = {
   'San Salvador': [
-    'San Salvador', 'Soyapango', 'Mejicanos', 'Apopa', 'Ciudad Delgado',
-    'San Marcos', 'Cuscatancingo', 'Santa Tecla', 'Antiguo Cuscatlán',
-    'Santo Tomás', 'San Martín', 'Tonacatepeque', 'Panchimalco',
+    'San Salvador',
+    'Soyapango',
+    'Mejicanos',
+    'Apopa',
+    'Ciudad Delgado',
+    'San Marcos',
+    'Cuscatancingo',
+    'Santa Tecla',
+    'Antiguo Cuscatlán',
+    'Santo Tomás',
+    'San Martín',
+    'Tonacatepeque',
+    'Panchimalco',
   ],
   'La Libertad': [
-    'Santa Tecla', 'Colón', 'Quezaltepeque', 'San Juan Opico',
-    'Zaragoza', 'Ciudad Arce', 'Jayaque', 'Huizúcar',
+    'Santa Tecla',
+    'Colón',
+    'Quezaltepeque',
+    'San Juan Opico',
+    'Zaragoza',
+    'Ciudad Arce',
+    'Jayaque',
+    'Huizúcar',
   ],
   'La Paz': [
-    'Zacatecoluca', 'San Luis Talpa', 'Olocuilta', 'San Pedro Masahuat',
+    'Zacatecoluca',
+    'San Luis Talpa',
+    'Olocuilta',
+    'San Pedro Masahuat',
   ],
   'Sonsonate': ['Sonsonate', 'Acajutla', 'Izalco', 'Nahuizalco'],
   'Santa Ana': ['Santa Ana', 'Chalchuapa', 'Coatepeque', 'Texistepeque'],
@@ -61,9 +80,7 @@ class RequestLocationViewModel extends ChangeNotifier {
   }
 
   bool get puedeAvanzar =>
-      _departamento != null &&
-      _municipio != null &&
-      _colonia.trim().isNotEmpty;
+      _departamento != null && _municipio != null && _colonia.trim().isNotEmpty;
 
   void setDepartamento(String? v) {
     _departamento = v;

@@ -1,5 +1,5 @@
--- Creates the reviews table used by the client/worker rating screens.
--- Run this in Supabase SQL Editor if the app shows:
+-- Crea la tabla de reseñas utilizada por las pantallas de calificación.
+-- Ejecutar en SQL Editor de Supabase si aparece este error de PostgREST:
 -- PGRST205: Could not find the table 'public.resenas' in the schema cache.
 
 create extension if not exists pgcrypto;

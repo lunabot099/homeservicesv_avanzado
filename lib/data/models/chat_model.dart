@@ -14,12 +14,14 @@ class ChatModel {
   final String clienteId;
   final String trabajadorId;
   final DateTime? creadoEn;
+
   /// Fecha en que se marcarán los mensajes para eliminación (solicitud.completada + 7 días)
   final DateTime? eliminarMensajesEn;
 
   // ── Campos de presentación (NO columnas de BD) ────────────────────────────
   /// Texto del último mensaje — se puebla desde un JOIN/RPC, no desde la tabla `chats`.
   final String? ultimoMensaje;
+
   /// Cantidad de mensajes no leídos — campo calculado, no almacenado.
   final int? mensajesNoLeidos;
 
@@ -60,6 +62,5 @@ class ChatModel {
       };
 
   @override
-  String toString() =>
-      'ChatModel(id: $id, solicitudId: $solicitudId)';
+  String toString() => 'ChatModel(id: $id, solicitudId: $solicitudId)';
 }

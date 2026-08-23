@@ -109,6 +109,8 @@ class SessionController extends ChangeNotifier {
       return;
     }
 
+    // Prioriza user_id; usa el correo como compatibilidad con solicitudes
+    // antiguas y conserva el último estado válido si una consulta falla.
     final previousApplication = _currentWorkerApplication;
     try {
       FormularioTrabajadorModel? application;

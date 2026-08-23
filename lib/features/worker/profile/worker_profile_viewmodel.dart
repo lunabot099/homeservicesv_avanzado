@@ -272,7 +272,8 @@ class WorkerProfileViewModel extends ChangeNotifier {
 
       return true;
     } catch (e) {
-      _error = 'No se pudo subir la foto: ${e.toString().replaceFirst("Exception: ", "")}';
+      _error =
+          'No se pudo subir la foto: ${e.toString().replaceFirst("Exception: ", "")}';
       return false;
     } finally {
       _isUploadingPhoto = false;

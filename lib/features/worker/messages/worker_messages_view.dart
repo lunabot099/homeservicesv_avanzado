@@ -89,8 +89,8 @@ class _ChatListTile extends StatelessWidget {
     final tiempoTexto = _formatTime(chat.creadoEn);
 
     return ListTile(
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: AppTheme.paddingLg, vertical: 6),
+      contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.paddingLg, vertical: 6),
       leading: CircleAvatar(
         radius: 24,
         backgroundColor: AppColors.primaryLight,
@@ -127,8 +127,7 @@ class _ChatListTile extends StatelessWidget {
           if ((chat.mensajesNoLeidos ?? 0) > 0) ...[
             const SizedBox(height: 4),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: AppColors.workerRole,
                 borderRadius: BorderRadius.circular(AppTheme.radiusFull),

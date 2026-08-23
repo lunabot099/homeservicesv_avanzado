@@ -25,8 +25,7 @@ class ClientPhotoOnboardingView extends StatefulWidget {
       _ClientPhotoOnboardingViewState();
 }
 
-class _ClientPhotoOnboardingViewState
-    extends State<ClientPhotoOnboardingView> {
+class _ClientPhotoOnboardingViewState extends State<ClientPhotoOnboardingView> {
   Uint8List? _fotoBytes;
   String _fotoMime = 'image/jpeg';
   bool _isUploading = false;
@@ -140,9 +139,8 @@ class _ClientPhotoOnboardingViewState
                     CircleAvatar(
                       radius: 72,
                       backgroundColor: AppColors.primaryLight,
-                      backgroundImage: _fotoBytes != null
-                          ? MemoryImage(_fotoBytes!)
-                          : null,
+                      backgroundImage:
+                          _fotoBytes != null ? MemoryImage(_fotoBytes!) : null,
                       child: _fotoBytes == null
                           ? const Icon(Icons.person_rounded,
                               size: 64, color: AppColors.primary)

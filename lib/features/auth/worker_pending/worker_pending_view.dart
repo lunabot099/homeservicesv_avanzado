@@ -127,8 +127,8 @@ class WorkerPendingView extends StatelessWidget {
 
               // ── Tiempo estimado ───────────────────────────────
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: AppColors.infoLight,
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
@@ -203,15 +203,15 @@ class _StatusRow extends StatelessWidget {
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                  color:
-                      isActive ? AppColors.textPrimary : AppColors.textSecondary,
+                  color: isActive
+                      ? AppColors.textPrimary
+                      : AppColors.textSecondary,
                 ),
           ),
         ),
         if (isActive)
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: AppColors.warning.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),

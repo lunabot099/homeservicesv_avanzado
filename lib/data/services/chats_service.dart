@@ -32,7 +32,8 @@ class ChatsService {
       return ChatModel.fromMap(existing);
     }
 
-    // Crear nuevo chat
+    // La base impone un chat único por solicitud. Si dos clientes intentan
+    // crearlo al mismo tiempo, el índice único puede rechazar una inserción.
     final data = await _client
         .from(_table)
         .insert({

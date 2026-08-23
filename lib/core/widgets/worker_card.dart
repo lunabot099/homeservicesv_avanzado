@@ -76,7 +76,10 @@ class WorkerCard extends StatelessWidget {
                         children: [
                           Text(
                             worker.nombre,
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
                                   fontWeight: FontWeight.w700,
                                 ),
                             maxLines: 1,
@@ -85,7 +88,10 @@ class WorkerCard extends StatelessWidget {
                           if (worker.especialidad != null)
                             Text(
                               worker.especialidad!,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
                                     color: AppColors.textSecondary,
                                   ),
                             ),

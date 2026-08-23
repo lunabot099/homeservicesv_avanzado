@@ -75,16 +75,20 @@ class ClientHomeViewModel extends ChangeNotifier {
     try {
       final todas = await _solicitudesRepo.getSolicitudesByCliente(userId);
       // Tomar la primera activa (no completada, cancelada ni expirada)
-      _solicitudActiva = todas.where((s) =>
+      _solicitudActiva = todas
+          .where((s) =>
               s.estado != EstadoSolicitud.completada &&
               s.estado != EstadoSolicitud.cancelada &&
               s.estado != EstadoSolicitud.expirada)
           .firstOrNull;
 
       // Si hay servicio confirmado, buscar el chat
-      if (_solicitudActiva != null && enServicio && _solicitudActiva!.id != null) {
+      if (_solicitudActiva != null &&
+          enServicio &&
+          _solicitudActiva!.id != null) {
         try {
-          _chatActivo = await _chatsRepo.getChatDeSolicitud(_solicitudActiva!.id!);
+          _chatActivo =
+              await _chatsRepo.getChatDeSolicitud(_solicitudActiva!.id!);
         } catch (_) {
           _chatActivo = null;
         }

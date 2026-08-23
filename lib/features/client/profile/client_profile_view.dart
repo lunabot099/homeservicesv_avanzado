@@ -107,8 +107,7 @@ class _ClientProfileViewState extends State<ClientProfileView> {
                                 width: 22,
                                 height: 22,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2.5,
-                                    color: Colors.white),
+                                    strokeWidth: 2.5, color: Colors.white),
                               ),
                             ),
                           ),
@@ -119,8 +118,7 @@ class _ClientProfileViewState extends State<ClientProfileView> {
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               shape: BoxShape.circle,
-                              border:
-                                  Border.all(color: Colors.white, width: 2),
+                              border: Border.all(color: Colors.white, width: 2),
                             ),
                             child: const Icon(Icons.camera_alt_rounded,
                                 color: Colors.white, size: 16),
@@ -207,20 +205,17 @@ class _ClientProfileViewState extends State<ClientProfileView> {
                   _OptionTile(
                     icon: Icons.history_rounded,
                     label: 'Historial de servicios',
-                    onTap: () =>
-                        context.push(RouteNames.clientServiceHistory),
+                    onTap: () => context.push(RouteNames.clientServiceHistory),
                   ),
                   _OptionTile(
                     icon: Icons.lock_outline_rounded,
                     label: 'Cambiar contraseña',
-                    onTap: () =>
-                        context.push(RouteNames.clientChangePassword),
+                    onTap: () => context.push(RouteNames.clientChangePassword),
                   ),
                   _OptionTile(
                     icon: Icons.location_on_outlined,
                     label: 'Direcciones guardadas',
-                    onTap: () =>
-                        context.push(RouteNames.clientSavedAddresses),
+                    onTap: () => context.push(RouteNames.clientSavedAddresses),
                   ),
                   _OptionTile(
                     icon: Icons.support_agent_rounded,
@@ -266,7 +261,8 @@ class _OptionTile extends StatelessWidget {
     final c = color ?? AppColors.textPrimary;
     return ListTile(
       leading: Icon(icon, color: c),
-      title: Text(label, style: TextStyle(color: c, fontWeight: FontWeight.w500)),
+      title:
+          Text(label, style: TextStyle(color: c, fontWeight: FontWeight.w500)),
       trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
       onTap: onTap,
       contentPadding: EdgeInsets.zero,

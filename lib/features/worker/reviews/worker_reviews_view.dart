@@ -64,8 +64,8 @@ class _WorkerReviewsContent extends StatelessWidget {
                     )
                   else ...[
                     SliverPadding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: AppTheme.paddingLg),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppTheme.paddingLg),
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (context, i) {
@@ -275,8 +275,7 @@ class _ResenaCard extends StatelessWidget {
                         label: Text(p),
                         labelStyle: const TextStyle(fontSize: 11),
                         padding: EdgeInsets.zero,
-                        materialTapTargetSize:
-                            MaterialTapTargetSize.shrinkWrap,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: VisualDensity.compact,
                         backgroundColor:
                             AppColors.workerRole.withValues(alpha: 0.08),

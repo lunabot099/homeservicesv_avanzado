@@ -18,5 +18,6 @@ class SupabaseClientService {
   static User? get currentUser => client.auth.currentUser;
 
   /// Stream de cambios de estado de autenticación.
-  static Stream<AuthState> get authStateChanges => client.auth.onAuthStateChange;
+  static Stream<AuthState> get authStateChanges =>
+      client.auth.onAuthStateChange;
 }

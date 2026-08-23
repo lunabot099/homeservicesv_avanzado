@@ -14,11 +14,7 @@ class PerfilesService {
 
   /// Obtiene el perfil de un usuario por su ID.
   Future<PerfilModel?> getPerfilById(String id) async {
-    final data = await _client
-        .from(_table)
-        .select()
-        .eq('id', id)
-        .maybeSingle();
+    final data = await _client.from(_table).select().eq('id', id).maybeSingle();
 
     if (data == null) return null;
     return PerfilModel.fromMap(data);
@@ -26,11 +22,8 @@ class PerfilesService {
 
   /// Crea un nuevo perfil en la base de datos.
   Future<PerfilModel> createPerfil(PerfilModel perfil) async {
-    final data = await _client
-        .from(_table)
-        .insert(perfil.toMap())
-        .select()
-        .single();
+    final data =
+        await _client.from(_table).insert(perfil.toMap()).select().single();
 
     return PerfilModel.fromMap(data);
   }
