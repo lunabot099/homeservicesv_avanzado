@@ -63,7 +63,8 @@ class _ClientRegisterContentState extends State<_ClientRegisterContent> {
       nombreCompleto: _nombreCtrl.text.trim(),
       correo: _emailCtrl.text.trim(),
       password: _passwordCtrl.text,
-      telefono: _telefonoCtrl.text.trim().isEmpty ? null : _telefonoCtrl.text.trim(),
+      telefono:
+          _telefonoCtrl.text.trim().isEmpty ? null : _telefonoCtrl.text.trim(),
     );
 
     if (!success || !mounted) return;
@@ -197,7 +198,8 @@ class _ClientRegisterContentState extends State<_ClientRegisterContent> {
                         Expanded(
                           child: Text(
                             'Cuenta creada. Confirma tu correo y luego inicia sesión.',
-                            style: TextStyle(color: AppColors.info, fontSize: 13),
+                            style:
+                                TextStyle(color: AppColors.info, fontSize: 13),
                           ),
                         ),
                       ],
@@ -215,12 +217,14 @@ class _ClientRegisterContentState extends State<_ClientRegisterContent> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline, color: AppColors.error, size: 18),
+                        const Icon(Icons.error_outline,
+                            color: AppColors.error, size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             vm.error!,
-                            style: const TextStyle(color: AppColors.error, fontSize: 13),
+                            style: const TextStyle(
+                                color: AppColors.error, fontSize: 13),
                           ),
                         ),
                       ],
@@ -251,10 +255,11 @@ class _ClientRegisterContentState extends State<_ClientRegisterContent> {
                         onTap: () => context.pop(),
                         child: Text(
                           'Inicia sesión',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
                       ),
                     ],

@@ -150,7 +150,9 @@ class _WorkerProfileDetailViewState extends State<WorkerProfileDetailView> {
                                 color: AppColors.error,
                               ),
                             if (w.destacado)
-                              _StatusBadge(label: '⭐ Destacado', color: AppColors.accent),
+                              _StatusBadge(
+                                  label: '⭐ Destacado',
+                                  color: AppColors.accent),
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -195,9 +197,10 @@ class _WorkerProfileDetailViewState extends State<WorkerProfileDetailView> {
                         if (vm.resenas.isEmpty)
                           Text(
                             'Aún no tiene reseñas.',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
                           ),
                         const SizedBox(height: 80), // espacio para botones
                       ],
@@ -296,7 +299,8 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _InfoRow({required this.icon, required this.label, required this.value});
+  const _InfoRow(
+      {required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -305,8 +309,10 @@ class _InfoRow extends StatelessWidget {
         Icon(icon, size: 16, color: AppColors.textSecondary),
         const SizedBox(width: 8),
         Text('$label: ',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary)),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: AppColors.textSecondary)),
         Text(value,
             style: Theme.of(context)
                 .textTheme

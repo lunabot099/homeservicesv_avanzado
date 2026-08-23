@@ -14,23 +14,17 @@ class WorkersService {
 
   /// Obtiene el perfil de trabajador por su ID.
   Future<WorkerProfileModel?> getWorkerById(String id) async {
-    final data = await _client
-        .from(_table)
-        .select()
-        .eq('id', id)
-        .maybeSingle();
+    final data = await _client.from(_table).select().eq('id', id).maybeSingle();
 
     if (data == null) return null;
     return WorkerProfileModel.fromMap(data);
   }
 
   /// Crea un perfil de trabajador.
-  Future<WorkerProfileModel> createWorkerProfile(WorkerProfileModel profile) async {
-    final data = await _client
-        .from(_table)
-        .insert(profile.toMap())
-        .select()
-        .single();
+  Future<WorkerProfileModel> createWorkerProfile(
+      WorkerProfileModel profile) async {
+    final data =
+        await _client.from(_table).insert(profile.toMap()).select().single();
 
     return WorkerProfileModel.fromMap(data);
   }

@@ -28,6 +28,5 @@ class HabilidadTrabajadorModel {
       };
 
   @override
-  String toString() =>
-      'HabilidadTrabajadorModel(id: $id, nombre: $nombre)';
+  String toString() => 'HabilidadTrabajadorModel(id: $id, nombre: $nombre)';
 }

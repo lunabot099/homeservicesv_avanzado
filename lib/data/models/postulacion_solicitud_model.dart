@@ -9,16 +9,17 @@ enum EstadoPostulacion {
   rechazada,
   cancelada;
 
-  static EstadoPostulacion fromString(String v) => EstadoPostulacion.values
-      .firstWhere((e) => e.name == v, orElse: () => EstadoPostulacion.pendiente);
+  static EstadoPostulacion fromString(String v) =>
+      EstadoPostulacion.values.firstWhere((e) => e.name == v,
+          orElse: () => EstadoPostulacion.pendiente);
 }
 
 class PostulacionSolicitudModel {
   final String? id;
   final String solicitudId;
   final String trabajadorId;
-  final double? precioEstimado;   // → 'precio_estimado' en DB
-  final String? mensajeInicial;   // → 'mensaje_inicial' en DB
+  final double? precioEstimado; // → 'precio_estimado' en DB
+  final String? mensajeInicial; // → 'mensaje_inicial' en DB
   final EstadoPostulacion estado;
   final DateTime? fechaCreacion;
 
@@ -39,7 +40,8 @@ class PostulacionSolicitudModel {
       trabajadorId: map['trabajador_id'] as String,
       precioEstimado: (map['precio_estimado'] as num?)?.toDouble(),
       mensajeInicial: map['mensaje_inicial'] as String?,
-      estado: EstadoPostulacion.fromString(map['estado'] as String? ?? 'pendiente'),
+      estado:
+          EstadoPostulacion.fromString(map['estado'] as String? ?? 'pendiente'),
       fechaCreacion: map['fecha_creacion'] != null
           ? DateTime.tryParse(map['fecha_creacion'] as String)
           : null,

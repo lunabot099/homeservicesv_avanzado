@@ -17,16 +17,19 @@ class WorkersRepository {
     try {
       return await _service.getWorkerById(id);
     } catch (e) {
-      throw Exception('No se pudo obtener el perfil del trabajador: ${e.toString()}');
+      throw Exception(
+          'No se pudo obtener el perfil del trabajador: ${e.toString()}');
     }
   }
 
   /// Crea un perfil de trabajador.
-  Future<WorkerProfileModel> createWorkerProfile(WorkerProfileModel profile) async {
+  Future<WorkerProfileModel> createWorkerProfile(
+      WorkerProfileModel profile) async {
     try {
       return await _service.createWorkerProfile(profile);
     } catch (e) {
-      throw Exception('No se pudo crear el perfil del trabajador: ${e.toString()}');
+      throw Exception(
+          'No se pudo crear el perfil del trabajador: ${e.toString()}');
     }
   }
 
@@ -35,7 +38,8 @@ class WorkersRepository {
     try {
       return await _service.getWorkersDisponibles();
     } catch (e) {
-      throw Exception('No se pudieron obtener los trabajadores: ${e.toString()}');
+      throw Exception(
+          'No se pudieron obtener los trabajadores: ${e.toString()}');
     }
   }
 

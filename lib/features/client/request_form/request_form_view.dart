@@ -110,8 +110,11 @@ class _RequestFormContentState extends State<_RequestFormContent> {
                         onSelected: (_) => vm.setUrgencia(u),
                         selectedColor: AppColors.primaryLight,
                         labelStyle: TextStyle(
-                          color: selected ? AppColors.primary : AppColors.textPrimary,
-                          fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
+                          fontWeight:
+                              selected ? FontWeight.w700 : FontWeight.w400,
                         ),
                       );
                     }).toList(),
@@ -131,8 +134,11 @@ class _RequestFormContentState extends State<_RequestFormContent> {
                         onSelected: (_) => vm.setTipoPago(t),
                         selectedColor: AppColors.primaryLight,
                         labelStyle: TextStyle(
-                          color: selected ? AppColors.primary : AppColors.textPrimary,
-                          fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
+                          fontWeight:
+                              selected ? FontWeight.w700 : FontWeight.w400,
                         ),
                       );
                     }).toList(),
@@ -145,18 +151,21 @@ class _RequestFormContentState extends State<_RequestFormContent> {
                     controller: _horarioCtrl,
                     onChanged: vm.setHorario,
                     decoration: const InputDecoration(
-                      hintText: 'Ej: Mañanas, después de las 3pm, fin de semana...',
+                      hintText:
+                          'Ej: Mañanas, después de las 3pm, fin de semana...',
                       prefixIcon: Icon(Icons.schedule_rounded),
                     ),
                   ),
                   const SizedBox(height: 20),
                   // ── Presupuesto ────────────────────────────
-                  _SectionLabel(label: 'Presupuesto estimado (opcional, en \$)'),
+                  _SectionLabel(
+                      label: 'Presupuesto estimado (opcional, en \$)'),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _presupuestoCtrl,
                     onChanged: vm.setPresupuesto,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(
                       hintText: 'Ej: 50',
                       prefixIcon: Icon(Icons.attach_money_rounded),
@@ -197,8 +206,9 @@ class _RequestFormContentState extends State<_RequestFormContent> {
               icon: Icons.arrow_forward_rounded,
               onPressed: vm.puedeAvanzar
                   ? () {
-                      final solicitudActualizada =
-                          widget.solicitud != null ? vm.aplicarA(widget.solicitud!) : null;
+                      final solicitudActualizada = widget.solicitud != null
+                          ? vm.aplicarA(widget.solicitud!)
+                          : null;
                       context.push(
                         RouteNames.clientRequestLocation,
                         extra: solicitudActualizada,
@@ -258,7 +268,8 @@ class _ImagePickerRow extends StatelessWidget {
                         color: AppColors.error,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.close, size: 12, color: Colors.white),
+                      child: const Icon(Icons.close,
+                          size: 12, color: Colors.white),
                     ),
                   ),
                 ),

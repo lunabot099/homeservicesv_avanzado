@@ -86,9 +86,8 @@ class WorkerProfileModel {
   factory WorkerProfileModel.fromMap(Map<String, dynamic> map) {
     // Especialidades: puede venir como List<dynamic> o null
     final rawEsp = map['especialidades'];
-    final especialidades = rawEsp != null
-        ? List<String>.from(rawEsp as List)
-        : <String>[];
+    final especialidades =
+        rawEsp != null ? List<String>.from(rawEsp as List) : <String>[];
 
     return WorkerProfileModel(
       id: map['id'] as String,

@@ -19,11 +19,8 @@ class MensajesService {
 
   /// Envía un nuevo mensaje.
   Future<MensajeChatModel> enviar(MensajeChatModel mensaje) async {
-    final data = await _client
-        .from(_table)
-        .insert(mensaje.toMap())
-        .select()
-        .single();
+    final data =
+        await _client.from(_table).insert(mensaje.toMap()).select().single();
     return MensajeChatModel.fromMap(data);
   }
 
@@ -67,9 +64,7 @@ class MensajesService {
         .stream(primaryKey: ['id'])
         .eq('chat_id', chatId)
         .order('fecha_creacion')
-        .map((rows) => rows
-            .map((e) => MensajeChatModel.fromMap(e))
-            .toList());
+        .map((rows) => rows.map((e) => MensajeChatModel.fromMap(e)).toList());
   }
 
   /// Marca todos los mensajes de un chat como leídos para un usuario.
@@ -98,9 +93,9 @@ class MensajesService {
   }) async {
     await _client.from(_table).insert({
       'chat_id': chatId,
-      'emisor_id': 'system',       // columna real
-      'tipo_mensaje': 'sistema',   // columna real
-      'texto': contenido,          // columna real
+      'emisor_id': 'system', // columna real
+      'tipo_mensaje': 'sistema', // columna real
+      'texto': contenido, // columna real
       'leido': true,
     });
   }

@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- android:label es el nombre visible bajo el ícono. Cámbialo junto con
+         los metadatos web/iOS cuando se defina el nombre comercial final. -->
     <application
         android:label="homeservicesv"
         android:name="${applicationName}"
@@ -12,10 +14,9 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
-            <!-- Specifies an Android theme to apply to this Activity as soon as
-                 the Android process has started. This theme is visible to the user
-                 while the Flutter UI initializes. After that, this theme continues
-                 to determine the Window background behind the Flutter UI. -->
+            <!-- Tema que Android muestra mientras Flutter inicia. Si se modifica,
+                 debe conservar coherencia con la pantalla de lanzamiento para
+                 evitar un parpadeo antes de que aparezca la interfaz Flutter. -->
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
@@ -25,17 +26,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- Don't delete the meta-data below.
-             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <!-- No eliminar: Flutter usa estos metadatos para registrar los plugins
+             nativos incluidos por las dependencias del proyecto. -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-    <!-- Required to query activities that can process text, see:
-         https://developer.android.com/training/package-visibility and
-         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
-
-         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <!-- Permite consultar aplicaciones capaces de procesar texto seleccionado.
+         Flutter lo usa para la integración de acciones de texto del sistema:
+         https://developer.android.com/training/package-visibility -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
@@ -43,7 +42,8 @@
         </intent>
     </queries>
 
-    <!-- Permisos de ubicación (geolocator — zona de cobertura del trabajador) -->
+    <!-- Permisos de ubicación para definir direcciones y cobertura. Si se
+         elimina alguno, hay que revisar el flujo y el manejo de permisos en Dart. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 </manifest>

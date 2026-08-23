@@ -108,7 +108,10 @@ class SubcategoriasMock {
   };
 
   static List<SubcategoriaServicioModel> getByCategoria(String categoriaId) {
-    final raw = _data[categoriaId] ?? [{'id': 'otro', 'nombre': 'Otro', 'orden': 1}];
+    final raw = _data[categoriaId] ??
+        [
+          {'id': 'otro', 'nombre': 'Otro', 'orden': 1}
+        ];
     return raw
         .map((e) => SubcategoriaServicioModel.fromMap({
               ...e,

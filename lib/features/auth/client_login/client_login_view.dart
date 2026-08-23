@@ -139,7 +139,8 @@ class _ClientLoginContentState extends State<_ClientLoginContent> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline, color: AppColors.error, size: 18),
+                        const Icon(Icons.error_outline,
+                            color: AppColors.error, size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -188,10 +189,11 @@ class _ClientLoginContentState extends State<_ClientLoginContent> {
                         onTap: () => context.push(RouteNames.clientRegister),
                         child: Text(
                           'Regístrate',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
                       ),
                     ],

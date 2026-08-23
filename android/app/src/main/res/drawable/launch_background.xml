@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Modify this file to customize your launch splash screen -->
+<!-- Modifica este archivo para personalizar la pantalla de inicio Android. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@android:color/white" />
 
-    <!-- You can insert your own image assets here -->
+    <!-- Inserta aquí recursos de marca si se personaliza la pantalla de inicio. -->
     <!-- <item>
         <bitmap
             android:gravity="center"

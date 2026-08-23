@@ -27,8 +27,10 @@ class MensajeChatModel {
   final String chatId;
   final String remitenteId;
   final TipoMensaje tipo;
+
   /// Contenido de texto. Null para mensajes de imagen pura.
   final String? contenido;
+
   /// URL del archivo en Supabase Storage (solo si tipo == imagen).
   final String? archivoUrl;
   final bool leido;
@@ -69,9 +71,9 @@ class MensajeChatModel {
 
   Map<String, dynamic> toMap() => {
         'chat_id': chatId,
-        'emisor_id': remitenteId,        // columna real
-        'tipo_mensaje': tipo.name,        // columna real
-        if (contenido != null) 'texto': contenido,  // columna real
+        'emisor_id': remitenteId, // columna real
+        'tipo_mensaje': tipo.name, // columna real
+        if (contenido != null) 'texto': contenido, // columna real
         if (archivoUrl != null) 'archivo_url': archivoUrl,
         'leido': leido,
       };

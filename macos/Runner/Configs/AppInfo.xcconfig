@@ -1,14 +1,12 @@
-// Application-level settings for the Runner target.
-//
-// This may be replaced with something auto-generated from metadata (e.g., pubspec.yaml) in the
-// future. If not, the values below would default to using the project name when this becomes a
-// 'flutter create' template.
+// Configuración de la aplicación para el target Runner de macOS.
+// Estos valores no provienen automáticamente de pubspec.yaml; si se cambia la
+// identidad comercial, deben mantenerse alineados con las demás plataformas.
 
-// The application's name. By default this is also the title of the Flutter window.
+// Nombre de la aplicación y, por defecto, título de su ventana.
 PRODUCT_NAME = homeservicesv
 
-// The application's bundle identifier
+// Identificador único del bundle de macOS.
 PRODUCT_BUNDLE_IDENTIFIER = com.example.homeservicesv
 
-// The copyright displayed in application information
+// Texto mostrado en la información de la aplicación.
 PRODUCT_COPYRIGHT = Copyright © 2026 com.example. All rights reserved.

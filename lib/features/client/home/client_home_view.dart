@@ -218,8 +218,7 @@ class _HomeTab extends StatelessWidget {
           _buildGreetingCard(context),
           const SizedBox(height: 16),
           // ── Acceso rápido si hay solicitud activa ─────────
-          if (vm.solicitudActiva != null)
-            _SolicitudActivaCard(vm: vm),
+          if (vm.solicitudActiva != null) _SolicitudActivaCard(vm: vm),
           if (vm.solicitudActiva != null) const SizedBox(height: 16),
           // ── Guía de uso ───────────────────────────────────
           Text(
@@ -277,11 +276,11 @@ class _HomeTab extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                if (vm.promedioCalificacion != null && vm.cantidadResenas != null)
+                if (vm.promedioCalificacion != null &&
+                    vm.cantidadResenas != null)
                   Row(
                     children: [
-                      RatingStars(
-                          rating: vm.promedioCalificacion!, size: 14),
+                      RatingStars(rating: vm.promedioCalificacion!, size: 14),
                       const SizedBox(width: 6),
                       Text(
                         '${vm.promedioCalificacion!.toStringAsFixed(1)} (${vm.cantidadResenas} reseñas)',
@@ -304,7 +303,8 @@ class _HomeTab extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.home_rounded, color: Colors.white, size: 28),
+            child:
+                const Icon(Icons.home_rounded, color: Colors.white, size: 28),
           ),
         ],
       ),
@@ -370,12 +370,10 @@ class _SolicitudActivaCard extends StatelessWidget {
     // Color y ícono según estado
     final Color headerColor =
         enBusqueda ? AppColors.warning : AppColors.primary;
-    final IconData headerIcon = enBusqueda
-        ? Icons.search_rounded
-        : Icons.home_repair_service_rounded;
-    final String headerLabel = enBusqueda
-        ? 'Buscando trabajador'
-        : s.estado.label;
+    final IconData headerIcon =
+        enBusqueda ? Icons.search_rounded : Icons.home_repair_service_rounded;
+    final String headerLabel =
+        enBusqueda ? 'Buscando trabajador' : s.estado.label;
 
     return Container(
       decoration: BoxDecoration(
@@ -518,8 +516,7 @@ class _QuickBtn extends StatelessWidget {
         foregroundColor: Colors.white,
         minimumSize: const Size(0, 36),
         padding: const EdgeInsets.symmetric(horizontal: 14),
-        textStyle:
-            const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusFull),
         ),

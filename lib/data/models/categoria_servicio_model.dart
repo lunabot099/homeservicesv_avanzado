@@ -52,15 +52,60 @@ class CategoriaServicioModel {
 /// Reemplazar por llamada real a Supabase cuando la tabla esté creada.
 class CategoriasServicioMock {
   static const List<Map<String, dynamic>> data = [
-    {'id': 'fontaneria', 'nombre': 'Fontanería', 'icono_codigo': 'plumbing', 'orden': 1},
-    {'id': 'albanileria', 'nombre': 'Albañilería', 'icono_codigo': 'foundation', 'orden': 2},
-    {'id': 'carpinteria', 'nombre': 'Carpintería', 'icono_codigo': 'carpenter', 'orden': 3},
-    {'id': 'electricidad', 'nombre': 'Electricidad', 'icono_codigo': 'electrical_services', 'orden': 4},
-    {'id': 'ceramica', 'nombre': 'Cerámica / Piso', 'icono_codigo': 'grid_view', 'orden': 5},
-    {'id': 'cielo_falso', 'nombre': 'Cielo Falso', 'icono_codigo': 'roofing', 'orden': 6},
-    {'id': 'pintura', 'nombre': 'Pintura', 'icono_codigo': 'format_paint', 'orden': 7},
-    {'id': 'soldadura', 'nombre': 'Soldadura', 'icono_codigo': 'hardware', 'orden': 8},
-    {'id': 'mecanica', 'nombre': 'Mecánica', 'icono_codigo': 'directions_car', 'orden': 9},
+    {
+      'id': 'fontaneria',
+      'nombre': 'Fontanería',
+      'icono_codigo': 'plumbing',
+      'orden': 1
+    },
+    {
+      'id': 'albanileria',
+      'nombre': 'Albañilería',
+      'icono_codigo': 'foundation',
+      'orden': 2
+    },
+    {
+      'id': 'carpinteria',
+      'nombre': 'Carpintería',
+      'icono_codigo': 'carpenter',
+      'orden': 3
+    },
+    {
+      'id': 'electricidad',
+      'nombre': 'Electricidad',
+      'icono_codigo': 'electrical_services',
+      'orden': 4
+    },
+    {
+      'id': 'ceramica',
+      'nombre': 'Cerámica / Piso',
+      'icono_codigo': 'grid_view',
+      'orden': 5
+    },
+    {
+      'id': 'cielo_falso',
+      'nombre': 'Cielo Falso',
+      'icono_codigo': 'roofing',
+      'orden': 6
+    },
+    {
+      'id': 'pintura',
+      'nombre': 'Pintura',
+      'icono_codigo': 'format_paint',
+      'orden': 7
+    },
+    {
+      'id': 'soldadura',
+      'nombre': 'Soldadura',
+      'icono_codigo': 'hardware',
+      'orden': 8
+    },
+    {
+      'id': 'mecanica',
+      'nombre': 'Mecánica',
+      'icono_codigo': 'directions_car',
+      'orden': 9
+    },
   ];
 
   static List<CategoriaServicioModel> get lista =>

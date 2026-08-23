@@ -29,11 +29,14 @@ class RouteNames {
   static const String clientRequestLocation = '/client/request/location';
   static const String clientWaitingWorkers = '/client/request/waiting';
   static const String clientWorkersCatalog = '/client/workers';
+
   /// /client/worker/:workerId
   static const String clientWorkerProfile = '/client/worker';
   static const String clientBookingConfirmation = '/client/booking/confirm';
+
   /// /client/tracking/:solicitudId
   static const String clientServiceTracking = '/client/tracking';
+
   /// /client/rate/:solicitudId
   static const String clientRateWorker = '/client/rate';
 
@@ -41,6 +44,7 @@ class RouteNames {
   static const String clientReviews = '/client/reviews';
   static const String clientProfile = '/client/profile';
   static const String clientMessages = '/client/messages';
+
   /// /client/chat/:chatId
   static const String clientChat = '/client/chat';
 

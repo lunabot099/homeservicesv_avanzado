@@ -12,12 +12,18 @@ enum MotivoReporte {
 
   String get label {
     switch (this) {
-      case MotivoReporte.no_se_presento: return 'El trabajador no se presentó';
-      case MotivoReporte.no_respondio: return 'No respondió';
-      case MotivoReporte.llego_tarde: return 'Llegó tarde';
-      case MotivoReporte.cancelo: return 'Canceló';
-      case MotivoReporte.problema_servicio: return 'Problema con el servicio';
-      case MotivoReporte.otro: return 'Otro';
+      case MotivoReporte.no_se_presento:
+        return 'El trabajador no se presentó';
+      case MotivoReporte.no_respondio:
+        return 'No respondió';
+      case MotivoReporte.llego_tarde:
+        return 'Llegó tarde';
+      case MotivoReporte.cancelo:
+        return 'Canceló';
+      case MotivoReporte.problema_servicio:
+        return 'Problema con el servicio';
+      case MotivoReporte.otro:
+        return 'Otro';
     }
   }
 

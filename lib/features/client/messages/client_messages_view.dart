@@ -90,7 +90,8 @@ class _ClientMessagesViewState extends State<ClientMessagesView> {
                               Text(
                                 '${chat.fechaUltimoMensaje.hour}:${chat.fechaUltimoMensaje.minute.toString().padLeft(2, '0')}',
                                 style: const TextStyle(
-                                    fontSize: 11, color: AppColors.textSecondary),
+                                    fontSize: 11,
+                                    color: AppColors.textSecondary),
                               ),
                             ],
                           ),

@@ -28,7 +28,8 @@ class AuthRepository {
 
       final user = response.user;
       if (user == null) {
-        throw Exception('No se pudo iniciar sesión. Verifica tus credenciales.');
+        throw Exception(
+            'No se pudo iniciar sesión. Verifica tus credenciales.');
       }
       return user;
     } on AuthException catch (e) {

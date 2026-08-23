@@ -55,7 +55,8 @@ class _ClientReviewsViewState extends State<ClientReviewsView> {
                           gradient: const LinearGradient(
                             colors: AppColors.primaryGradient,
                           ),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                          borderRadius:
+                              BorderRadius.circular(AppTheme.radiusLg),
                         ),
                         child: Row(
                           children: [
@@ -105,15 +106,17 @@ class _ClientReviewsViewState extends State<ClientReviewsView> {
                               itemBuilder: (context, i) {
                                 final r = vm.resenas[i];
                                 return Container(
-                                  padding: const EdgeInsets.all(AppTheme.paddingMd),
+                                  padding:
+                                      const EdgeInsets.all(AppTheme.paddingMd),
                                   decoration: BoxDecoration(
                                     color: AppColors.surface,
-                                    borderRadius:
-                                        BorderRadius.circular(AppTheme.radiusMd),
+                                    borderRadius: BorderRadius.circular(
+                                        AppTheme.radiusMd),
                                     border: Border.all(color: AppColors.border),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -133,7 +136,8 @@ class _ClientReviewsViewState extends State<ClientReviewsView> {
                                       if (r.comentario != null) ...[
                                         const SizedBox(height: 8),
                                         Text(r.comentario!,
-                                            style: const TextStyle(fontSize: 13)),
+                                            style:
+                                                const TextStyle(fontSize: 13)),
                                       ],
                                     ],
                                   ),

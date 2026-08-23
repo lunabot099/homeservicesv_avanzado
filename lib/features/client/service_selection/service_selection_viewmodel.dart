@@ -22,11 +22,13 @@ class ServiceSelectionViewModel extends ChangeNotifier {
   ServiceSelectionViewModel();
 
   CategoriaServicioModel? get categoria => _categoria;
-  SubcategoriaServicioModel? get subcategoriaSeleccionada => _subcategoriaSeleccionada;
+  SubcategoriaServicioModel? get subcategoriaSeleccionada =>
+      _subcategoriaSeleccionada;
   List<SubcategoriaServicioModel> get subcategorias => _subcategorias;
   bool get mostrarCampoPersonalizado => _mostrarCampoPersonalizado;
   String? get descripcionPersonalizada => _descripcionPersonalizada;
-  SolicitudServicioModel? get solicitudEnConstruccion => _solicitudEnConstruccion;
+  SolicitudServicioModel? get solicitudEnConstruccion =>
+      _solicitudEnConstruccion;
 
   /// Carga la categoría y sus subcategorías (usa mock).
   /// TODO: Reemplazar mock por llamada real a Supabase cuando la tabla exista.
@@ -34,7 +36,8 @@ class ServiceSelectionViewModel extends ChangeNotifier {
     final cats = CategoriasServicioMock.lista;
     _categoria = cats.firstWhere(
       (c) => c.id == categoriaId,
-      orElse: () => CategoriaServicioModel(id: categoriaId, nombre: categoriaId),
+      orElse: () =>
+          CategoriaServicioModel(id: categoriaId, nombre: categoriaId),
     );
     _subcategorias = SubcategoriasMock.getByCategoria(categoriaId);
     _subcategoriaSeleccionada = null;

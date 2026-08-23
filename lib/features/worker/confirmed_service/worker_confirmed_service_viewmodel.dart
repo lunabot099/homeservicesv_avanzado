@@ -8,7 +8,8 @@ import '../../../data/models/postulacion_solicitud_model.dart';
 
 class WorkerConfirmedServiceViewModel extends ChangeNotifier {
   SolicitudServicioModel? _solicitud;
-  WorkerCatalogItemModel? _clienteInfo; // Datos del cliente (adaptado del modelo)
+  WorkerCatalogItemModel?
+      _clienteInfo; // Datos del cliente (adaptado del modelo)
 
   SolicitudServicioModel? get solicitud => _solicitud;
   WorkerCatalogItemModel? get clienteInfo => _clienteInfo;

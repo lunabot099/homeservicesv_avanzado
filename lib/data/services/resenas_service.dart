@@ -15,11 +15,8 @@ class ResenasService {
 
   /// Crea una nueva reseña (cualquier dirección).
   Future<ResenaModel> createResena(ResenaModel resena) async {
-    final data = await _client
-        .from(_table)
-        .insert(resena.toMap())
-        .select()
-        .single();
+    final data =
+        await _client.from(_table).insert(resena.toMap()).select().single();
     return ResenaModel.fromMap(data);
   }
 
