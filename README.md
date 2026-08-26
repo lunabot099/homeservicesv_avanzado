@@ -92,13 +92,15 @@ el archivo final firmado para App Store.
 
 ## Inicio rápido
 
-1. Clona o descarga el proyecto.
+1. Clona el repositorio oficial.
 2. Abre una terminal en la carpeta que contiene `pubspec.yaml`.
 3. Crea `.env` a partir de `.env.example`.
 4. Completa únicamente la URL y clave pública del mismo proyecto Supabase.
 5. Descarga dependencias y ejecuta las verificaciones.
 
 ```powershell
+git clone https://github.com/lunabot099/homeservicesv_avanzado.git
+cd homeservicesv_avanzado
 Copy-Item .env.example .env
 flutter doctor -v
 flutter pub get
@@ -113,6 +115,27 @@ En macOS o Linux, crea el archivo con:
 ```bash
 cp .env.example .env
 ```
+
+## Repositorio y flujo de ramas
+
+Repositorio oficial: <https://github.com/lunabot099/homeservicesv_avanzado>
+
+- `main`: código estable de producción y base de publicación web.
+- `develop`: integración del sprint actual antes de promover cambios a `main`.
+- Ramas de trabajo:
+  - `feature/nombre-tarea` para nuevas funcionalidades.
+  - `fix/nombre-bug` para correcciones.
+  - `chore/tarea-mantenimiento` para mantenimiento, configuración o documentación.
+
+Las ramas `main` y `develop` están pensadas para recibir cambios únicamente por
+Pull Request. Cada PR debe tener al menos una aprobación de revisión antes de
+fusionarse. Los colaboradores del equipo deben trabajar en ramas cortas,
+mantener su rama actualizada con `develop` y ejecutar las verificaciones locales
+antes de solicitar revisión.
+
+Para añadir desarrolladores, el propietario del repositorio debe invitarlos desde
+**Settings → Collaborators and teams** con permiso **Write** o superior, según su
+responsabilidad en el proyecto.
 
 ## Configuración de Supabase
 
